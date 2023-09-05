@@ -14,6 +14,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@types/node-dir": "^0.0.34",
     "node-dir": "0.1.17",
     "onchfs": "workspace:*"
   },

@@ -79,5 +79,5 @@ type Inscription = InscriptionChunk | InscriptionFile | InscriptionDirectory;
  * @param root The root of the tree, can be either the root directory or a file
  * @returns A list of inscription objects ready to be turned into operations
  */
-export declare function generateInscriptions(root: INode): Promise<Inscription[]>;
+export declare function generateInscriptions(root: INode): Inscription[];
 export {};

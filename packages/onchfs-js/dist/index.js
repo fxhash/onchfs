@@ -261,7 +261,12 @@ async function prepareDirectory(files, chunkSize = DEFAULT_CHUNK_SIZE) {
             // push the eventual parent to the nodes to parse; eventually when
             // reaching the head, nothing will have to get parsed
             if (node.parent) {
-                nextParse.push(node.parent);
+                // we can only push the parent when all its children have been parsed
+                // already (which is checked if .inode property exists)
+                const children = Object.values(node.parent.files);
+                if (!children.find(child => !child.inode)) {
+                    nextParse.push(node.parent);
+                }
             }
         }
         // once all the nodes to parse have been parsed, assign the next wave
@@ -301,7 +306,7 @@ function computeDirectoryInode(dir) {
  * @param root The root of the tree, can be either the root directory or a file
  * @returns A list of inscription objects ready to be turned into operations
  */
-async function generateInscriptions(root) {
+function generateInscriptions(root) {
     const inscriptions = [];
     const traverse = (node) => {
         if (node.type === "directory") {
@@ -315,19 +320,19 @@ async function generateInscriptions(root) {
             }
         }
         else if (node.type === "file") {
-            // first create chunk inscriptions, order doesn't matter
+            // create the first inscription first as it will be reversed in the end,
+            // so the chunk inscriptions will appear first
+            inscriptions.push({
+                type: "file",
+                chunks: node.chunks.map(chk => chk.hash),
+                metadata: node.metadata,
+            });
             for (const chunk of node.chunks) {
                 inscriptions.push({
                     type: "chunk",
                     content: chunk.bytes,
                 });
             }
-            // and the file inscription
-            inscriptions.push({
-                type: "file",
-                chunks: node.chunks.map(chk => chk.hash),
-                metadata: node.metadata,
-            });
         }
     };
     traverse(root);
