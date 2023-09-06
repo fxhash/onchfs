@@ -7,6 +7,7 @@ export type FileMetadataBytecodes = {
     [entry in keyof FileMetadataEntries]: Buffer;
 };
 export declare const fileMetadataBytecodes: FileMetadataBytecodes;
+export declare const FORBIDDEN_METADATA_CHARS: number[];
 /**
  * Validate a metadata field value to check if if follows https contrasts.
  * todo: should be refined to properly implement the HTTP spec, right now just

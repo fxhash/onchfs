@@ -50,17 +50,23 @@ export function encodeFileMetadata(metadata: FileMetadataEntries): Buffer[] {
   const out: Buffer[] = []
   let value: string
   for (const entry in metadata) {
-    value = metadata[entry]
-    try {
-      validateMetadataValue(value)
-    } catch (err) {
-      throw new Error(
-        `Error when validating the metadata field "${entry}": ${err.message}`
+    if (fileMetadataBytecodes[entry]) {
+      // only process if valid entry
+      value = metadata[entry]
+      try {
+        validateMetadataValue(value)
+      } catch (err) {
+        throw new Error(
+          `Error when validating the metadata field "${entry}": ${err.message}`
+        )
+      }
+      out.push(
+        Buffer.concat([
+          fileMetadataBytecodes[entry],
+          Buffer.from(value, "ascii"),
+        ])
       )
     }
-    out.push(
-      Buffer.concat([fileMetadataBytecodes[entry], Buffer.from(value, "ascii")])
-    )
   }
   return out.sort((a, b) =>
     Buffer.compare(Buffer.from(a, 0, 2), Buffer.from(b, 0, 2))

@@ -4,7 +4,7 @@ import { DEFAULT_CHUNK_SIZE, INODE_BYTE_IDENTIFIER } from "./config"
 import { FileMetadataEntries, encodeFileMetadata } from "./metadata"
 import { FileInode } from "./types"
 import { lookup as lookupMime } from "mime-types"
-import { chunkFile } from "./chunks"
+import { chunkBytes } from "./chunks"
 // import { fileTypeFromBuffer } from "file-type"
 
 /**
@@ -62,7 +62,7 @@ export async function prepareFile(
   }
 
   // chunk the file
-  const chunks = chunkFile(insertionBytes, chunkSize)
+  const chunks = chunkBytes(insertionBytes, chunkSize)
   // encode the metadata
   const metadataEncoded = encodeFileMetadata(metadata)
   // compute the file unique identifier, following the onchfs specifications:

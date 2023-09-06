@@ -1,4 +1,4 @@
-import { chunkFile } from "./chunks"
+import { chunkBytes } from "./chunks"
 import { generateInscriptions, inscriptionsStorageBytes } from "./inscriptions"
 import {
   buildDirectoryGraph,
@@ -20,7 +20,7 @@ import {
  * consumer API.
  */
 const utils = {
-  chunkFile,
+  chunkBytes,
   encodeFilename,
   computeDirectoryInode,
   buildDirectoryGraph,

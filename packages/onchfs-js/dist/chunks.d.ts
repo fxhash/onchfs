@@ -1,8 +1,5 @@
-import keccak from "keccak"
-import { DEFAULT_CHUNK_SIZE } from "./config"
-import { FileChunk } from "./types"
-import { BufferCopyFrom } from "./utils"
-
+/// <reference types="node" />
+import { FileChunk } from "./types";
 /**
  * Splits the content of a file into multiple chunks of the same size (except
  * case a smaller chunk upload will be required). Chunks are also hashed, as
@@ -17,24 +14,4 @@ import { BufferCopyFrom } from "./utils"
  * to be stored requires 32 bytes of extra storage.
  * @returns a list of chunks which can be uploaded to reconstruct the file
  */
-export function chunkBytes(
-  content: Buffer,
-  chunkSize: number = DEFAULT_CHUNK_SIZE
-): FileChunk[] {
-  const L = content.length
-  const nb = Math.ceil(L / chunkSize)
-  const chunks: FileChunk[] = []
-  let chunk: Buffer
-  for (let i = 0; i < nb; i++) {
-    chunk = BufferCopyFrom(
-      content,
-      i * chunkSize,
-      Math.min(chunkSize, L - i * chunkSize)
-    )
-    chunks.push({
-      bytes: chunk,
-      hash: keccak("keccak256").update(chunk).digest(),
-    })
-  }
-  return chunks
-}
+export declare function chunkBytes(content: Buffer, chunkSize?: number): FileChunk[];
