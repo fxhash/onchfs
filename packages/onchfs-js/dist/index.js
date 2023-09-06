@@ -9,10 +9,7 @@ const mime_types_1 = require("mime-types");
 // import { fileTypeFromBuffer } from "file-type"
 const node_zopfli_1 = __importDefault(require("node-zopfli"));
 const utils_1 = require("./utils");
-const fileMetadataBytecodes = {
-    "Content-Type": Buffer.from("0001", "hex"),
-    "Content-Encoding": Buffer.from("0002", "hex"),
-};
+const metadata_1 = require("metadata");
 const INODE_BYTE_IDENTIFIER = {
     FILE: Buffer.from("01", "hex"),
     DIRECTORY: Buffer.from("00", "hex"),
@@ -51,51 +48,6 @@ function chunkFile(content, chunkSize = DEFAULT_CHUNK_SIZE) {
     return chunks;
 }
 exports.chunkFile = chunkFile;
-const FORBIDDEN_METADATA_CHARS = [
-    0, // NUL character
-];
-function validateMetadataValue(value) {
-    for (let i = 0; i < value.length; i++) {
-        if (FORBIDDEN_METADATA_CHARS.includes(value.charCodeAt(i))) {
-            throw new Error(`contains invalid character (code: ${value.charCodeAt(i)}) at position ${i}`);
-        }
-    }
-}
-/**
- * Encodes the metadata of a file following the specifications provided by the
- * onchfs. Each entry is prefixed by 2 bytes encoding the entry type, followed
- * by 7-bit ASCII encoded characters for the string-value associated.
- * The metadata entries are sorted by their 2 bytes identifier.
- * @param metadata The object metadata of a file
- * @returns An array of buffers, each entry representing one metadata property
- */
-function encodeFileMetadata(metadata) {
-    const out = [];
-    let value;
-    for (const entry in metadata) {
-        value = metadata[entry];
-        try {
-            validateMetadataValue(value);
-        }
-        catch (err) {
-            throw new Error(`Error when validating the metadata field "${entry}": ${err.message}`);
-        }
-        out.push(Buffer.concat([fileMetadataBytecodes[entry], Buffer.from(value, "ascii")]));
-    }
-    return out.sort((a, b) => Buffer.compare(Buffer.from(a, 0, 2), Buffer.from(b, 0, 2)));
-}
-// a list of the characters forbidden in filenames
-const FORBIDDEN_FILENAME_CHARACTERS = ":/?#[]@!$&'()*+,;=".split("");
-function validateFilename(name) {
-    // check that filename doesn't contain any forbidden character
-    let c;
-    for (let i = 0; i < name.length; i++) {
-        c = name.charAt(i);
-        if (FORBIDDEN_FILENAME_CHARACTERS.includes(c)) {
-            throw new Error(`"${c}" is forbidden in filenames (forbidden characters: ${FORBIDDEN_FILENAME_CHARACTERS.join("")})`);
-        }
-    }
-}
 /**
  * Encodes the filename in 7-bit ASCII, where UTF-8 characters are escaped. Will
  * also escape any character that are not supported in the URI specification, as
@@ -158,7 +110,7 @@ async function prepareFile(name, content, chunkSize = DEFAULT_CHUNK_SIZE) {
     // chunk the file
     const chunks = chunkFile(insertionBytes, chunkSize);
     // encode the metadata
-    const metadataEncoded = encodeFileMetadata(metadata);
+    const metadataEncoded = (0, metadata_1.encodeFileMetadata)(metadata);
     // compute the file unique identifier, following the onchfs specifications:
     // keccak( 0x01 , keccak( content ), keccak( metadata ) )
     const contentHash = (0, keccak_1.default)("keccak256").update(insertionBytes).digest();
@@ -197,7 +149,10 @@ function buildDirectoryGraph(files) {
         const formattedPath = file.path.startsWith("./")
             ? file.path.slice(2)
             : file.path;
-        const parts = formattedPath.split("/");
+        // note: the filenames get encoded here, as the onchfs spec defines
+        // filenames need to be inserted in ASCII 7-bit with special characters
+        // escape-encoded
+        const parts = formattedPath.split("/").map(part => encodeFilename(part));
         for (let i = 0; i < parts.length; i++) {
             part = parts[i];
             // if name is empty, we throw
@@ -239,6 +194,18 @@ function buildDirectoryGraph(files) {
     }
     return [graph, leaves];
 }
+/**
+ * Given a list of files, will create an inverted tree of the directory
+ * structure with the main directory as its root. Each file will be chunked in
+ * preparation for the insertion. The whole structure will be ready for
+ * computing the inscriptions on any blockchain network on which the protocol
+ * is deployed.
+ * @param files A list a files (with their path relative to the root of the
+ * directory and their byte content)
+ * @param chunkSize Maximum size of the chunks in which the file will be divided
+ * @returns A root directory inode from which the whole directory tree can be
+ * traversed, as it's going to be inscribed.
+ */
 async function prepareDirectory(files, chunkSize = DEFAULT_CHUNK_SIZE) {
     const [graph, leaves] = buildDirectoryGraph(files);
     const parsed = [];
@@ -277,6 +244,12 @@ async function prepareDirectory(files, chunkSize = DEFAULT_CHUNK_SIZE) {
     return graph.inode;
 }
 exports.prepareDirectory = prepareDirectory;
+/**
+ * Computed the different component of a directory inode based on the
+ * preparation object.
+ * @param dir A directory being prepared
+ * @returns A directory inode, from which insertions can be derived
+ */
 function computeDirectoryInode(dir) {
     const acc = [];
     const filenames = Object.keys(dir.files).sort();
@@ -320,7 +293,7 @@ function generateInscriptions(root) {
             }
         }
         else if (node.type === "file") {
-            // create the first inscription first as it will be reversed in the end,
+            // create the file inscription first as it will be reversed in the end,
             // so the chunk inscriptions will appear first
             inscriptions.push({
                 type: "file",

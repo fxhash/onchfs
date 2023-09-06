@@ -53,6 +53,18 @@ export declare function chunkFile(content: Buffer, chunkSize?: number): FileChun
  * @returns A file node object with all the data necessary for its insertion
  */
 export declare function prepareFile(name: string, content: Buffer, chunkSize?: number): Promise<FileInode>;
+/**
+ * Given a list of files, will create an inverted tree of the directory
+ * structure with the main directory as its root. Each file will be chunked in
+ * preparation for the insertion. The whole structure will be ready for
+ * computing the inscriptions on any blockchain network on which the protocol
+ * is deployed.
+ * @param files A list a files (with their path relative to the root of the
+ * directory and their byte content)
+ * @param chunkSize Maximum size of the chunks in which the file will be divided
+ * @returns A root directory inode from which the whole directory tree can be
+ * traversed, as it's going to be inscribed.
+ */
 export declare function prepareDirectory(files: IFile[], chunkSize?: number): Promise<DirectoryInode>;
 type InscriptionChunk = {
     type: "chunk";

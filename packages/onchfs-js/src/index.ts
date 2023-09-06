@@ -3,16 +3,11 @@ import { lookup as lookupMime } from "mime-types"
 // import { fileTypeFromBuffer } from "file-type"
 import zopfli from "node-zopfli"
 import { BufferCopyFrom } from "./utils"
-import fs from "fs"
+import { FileMetadataEntries, encodeFileMetadata } from "metadata"
 
 type FileChunk = {
   bytes: Buffer
   hash: Buffer
-}
-
-interface FileMetadataEntries {
-  "Content-Type"?: string
-  "Content-Encoding"?: "gzip" | "deflate" | "compress"
 }
 
 type FileInode = {
@@ -35,14 +30,6 @@ type INode = DirectoryInode | FileInode
 type IFile = {
   path: string
   content: Buffer
-}
-
-type FileMetadataBytecodes = {
-  [entry in keyof FileMetadataEntries]: Buffer
-}
-const fileMetadataBytecodes: FileMetadataBytecodes = {
-  "Content-Type": Buffer.from("0001", "hex"),
-  "Content-Encoding": Buffer.from("0002", "hex"),
 }
 
 const INODE_BYTE_IDENTIFIER = {
@@ -90,67 +77,6 @@ export function chunkFile(
     })
   }
   return chunks
-}
-
-const FORBIDDEN_METADATA_CHARS = [
-  0, // NUL character
-]
-function validateMetadataValue(value: string): void {
-  for (let i = 0; i < value.length; i++) {
-    if (FORBIDDEN_METADATA_CHARS.includes(value.charCodeAt(i))) {
-      throw new Error(
-        `contains invalid character (code: ${value.charCodeAt(
-          i
-        )}) at position ${i}`
-      )
-    }
-  }
-}
-
-/**
- * Encodes the metadata of a file following the specifications provided by the
- * onchfs. Each entry is prefixed by 2 bytes encoding the entry type, followed
- * by 7-bit ASCII encoded characters for the string-value associated.
- * The metadata entries are sorted by their 2 bytes identifier.
- * @param metadata The object metadata of a file
- * @returns An array of buffers, each entry representing one metadata property
- */
-function encodeFileMetadata(metadata: FileMetadataEntries): Buffer[] {
-  const out: Buffer[] = []
-  let value: string
-  for (const entry in metadata) {
-    value = metadata[entry]
-    try {
-      validateMetadataValue(value)
-    } catch (err) {
-      throw new Error(
-        `Error when validating the metadata field "${entry}": ${err.message}`
-      )
-    }
-    out.push(
-      Buffer.concat([fileMetadataBytecodes[entry], Buffer.from(value, "ascii")])
-    )
-  }
-  return out.sort((a, b) =>
-    Buffer.compare(Buffer.from(a, 0, 2), Buffer.from(b, 0, 2))
-  )
-}
-
-// a list of the characters forbidden in filenames
-const FORBIDDEN_FILENAME_CHARACTERS = ":/?#[]@!$&'()*+,;=".split("")
-function validateFilename(name: string): void {
-  // check that filename doesn't contain any forbidden character
-  let c: string
-  for (let i = 0; i < name.length; i++) {
-    c = name.charAt(i)
-    if (FORBIDDEN_FILENAME_CHARACTERS.includes(c)) {
-      throw new Error(
-        `"${c}" is forbidden in filenames (forbidden characters: ${FORBIDDEN_FILENAME_CHARACTERS.join(
-          ""
-        )})`
-      )
-    }
-  }
 }
 
 /**
@@ -287,7 +213,10 @@ function buildDirectoryGraph(
     const formattedPath = file.path.startsWith("./")
       ? file.path.slice(2)
       : file.path
-    const parts = formattedPath.split("/")
+    // note: the filenames get encoded here, as the onchfs spec defines
+    // filenames need to be inserted in ASCII 7-bit with special characters
+    // escape-encoded
+    const parts = formattedPath.split("/").map(part => encodeFilename(part))
     for (let i = 0; i < parts.length; i++) {
       part = parts[i]
       // if name is empty, we throw
@@ -462,7 +391,7 @@ export function generateInscriptions(root: INode): Inscription[] {
         traverse(node.files[name])
       }
     } else if (node.type === "file") {
-      // create the first inscription first as it will be reversed in the end,
+      // create the file inscription first as it will be reversed in the end,
       // so the chunk inscriptions will appear first
       inscriptions.push({
         type: "file",
