@@ -1,5 +1,5 @@
 import { chunkFile } from "./chunks"
-import { generateInscriptions } from "./inscriptions"
+import { generateInscriptions, inscriptionsStorageBytes } from "./inscriptions"
 import {
   buildDirectoryGraph,
   computeDirectoryInode,
@@ -36,6 +36,7 @@ const config = {
   DEFAULT_CHUNK_SIZE,
   FORBIDDEN_METADATA_CHARS,
   fileMetadataBytecodes,
+  inscriptionsStorageBytes,
 }
 
 export default {
