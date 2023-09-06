@@ -1,16 +1,20 @@
 {
   "name": "onchfs",
   "version": "1.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "files": [
-    "dist/**/*"
+    "dist"
   ],
   "license": "MIT",
   "scripts": {
-    "clean": "rm -rf dist",
-    "build": "npm run clean && tsc --declaration",
-    "dev": "tsc && (concurrently \"tsc -w --declaration\" \"tsc-alias -w\")",
+    "build": "tsup",
+    "build:watch": "tsup --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

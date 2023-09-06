@@ -1,5 +1,9 @@
 import { chunkFile } from "./chunks"
-import { generateInscriptions, inscriptionsStorageBytes } from "./inscriptions"
+import {
+  generateInscriptions,
+  inscriptionsStorageBytes,
+  Inscription,
+} from "./inscriptions"
 import {
   buildDirectoryGraph,
   computeDirectoryInode,
@@ -39,10 +43,11 @@ const config = {
   inscriptionsStorageBytes,
 }
 
-export default {
+export {
   prepareFile,
   prepareDirectory,
   generateInscriptions,
   utils,
   config,
+  Inscription,
 }
