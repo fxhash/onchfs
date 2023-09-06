@@ -51,3 +51,17 @@ export {
   config,
   Inscription,
 }
+
+const Onchfs = {
+  prepareFile,
+  prepareDirectory,
+  generateInscriptions,
+  utils,
+  config,
+}
+export default Onchfs
+
+// Used to expose the library to the browser build version
+if (global.window) {
+  global.window.Onchfs = Onchfs
+}
