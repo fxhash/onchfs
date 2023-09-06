@@ -334,6 +334,18 @@ function buildDirectoryGraph(
   return [graph, leaves]
 }
 
+/**
+ * Given a list of files, will create an inverted tree of the directory
+ * structure with the main directory as its root. Each file will be chunked in
+ * preparation for the insertion. The whole structure will be ready for
+ * computing the inscriptions on any blockchain network on which the protocol
+ * is deployed.
+ * @param files A list a files (with their path relative to the root of the
+ * directory and their byte content)
+ * @param chunkSize Maximum size of the chunks in which the file will be divided
+ * @returns A root directory inode from which the whole directory tree can be
+ * traversed, as it's going to be inscribed.
+ */
 export async function prepareDirectory(
   files: IFile[],
   chunkSize: number = DEFAULT_CHUNK_SIZE
@@ -376,6 +388,12 @@ export async function prepareDirectory(
   return graph.inode!
 }
 
+/**
+ * Computed the different component of a directory inode based on the
+ * preparation object.
+ * @param dir A directory being prepared
+ * @returns A directory inode, from which insertions can be derived
+ */
 function computeDirectoryInode(dir: PrepareDirectoryDir): DirectoryInode {
   const acc: Buffer[] = []
   const filenames = Object.keys(dir.files).sort()
