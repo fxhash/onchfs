@@ -7,6 +7,8 @@ export type FileMetadataBytecodes = {
   [entry in keyof FileMetadataEntries]: Buffer
 }
 
+// map of the metadata fields with their 2-byte identifier, used to encode
+// on the blockchain with a smaller footprint
 export const fileMetadataBytecodes: FileMetadataBytecodes = {
   "Content-Type": Buffer.from("0001", "hex"),
   "Content-Encoding": Buffer.from("0002", "hex"),
@@ -14,7 +16,7 @@ export const fileMetadataBytecodes: FileMetadataBytecodes = {
 
 // a list of the forbidden characters in the metadata
 // todo: point to where I found this in http specs
-const FORBIDDEN_METADATA_CHARS = [
+export const FORBIDDEN_METADATA_CHARS = [
   0, // NUL character
 ]
 
