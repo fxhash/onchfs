@@ -18,16 +18,18 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@types/keccak": "^3.0.1",
-    "@types/mime-types": "2.1.1",
-    "@types/node-zopfli": "2.0.2",
     "file-type": "18.5.0",
-    "keccak": "^3.0.3",
-    "mime-types": "^2.1.35",
+    "keccak": "3.0.3",
+    "mime-types": "2.1.35",
     "node-zopfli": "2.1.4"
   },
   "devDependencies": {
+    "@esbuild-plugins/node-globals-polyfill": "0.2.3",
+    "@esbuild-plugins/node-modules-polyfill": "0.2.2",
+    "@types/keccak": "3.0.1",
+    "@types/mime-types": "2.1.1",
     "@types/node": "18.7.13",
+    "@types/node-zopfli": "2.0.2",
     "tsc-alias": "1.8.5",
     "tsup": "7.2.0",
     "typescript": "4.9.5"
