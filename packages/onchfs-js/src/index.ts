@@ -3,6 +3,7 @@ import { lookup as lookupMime } from "mime-types"
 // import { fileTypeFromBuffer } from "file-type"
 import zopfli from "node-zopfli"
 import { BufferCopyFrom } from "./utils"
+import fs from "fs"
 
 type FileChunk = {
   bytes: Buffer
@@ -414,7 +415,10 @@ type InscriptionDirectory = {
   }
 }
 
-type Inscription = InscriptionChunk | InscriptionFile | InscriptionDirectory
+export type Inscription =
+  | InscriptionChunk
+  | InscriptionFile
+  | InscriptionDirectory
 
 /**
  * Traverse the inverted tree starting by the root, creating inscriptions as

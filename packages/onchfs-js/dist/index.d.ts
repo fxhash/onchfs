@@ -69,7 +69,7 @@ type InscriptionDirectory = {
         [name: string]: Buffer;
     };
 };
-type Inscription = InscriptionChunk | InscriptionFile | InscriptionDirectory;
+export type Inscription = InscriptionChunk | InscriptionFile | InscriptionDirectory;
 /**
  * Traverse the inverted tree starting by the root, creating inscriptions as
  * it's being traversed. At the end of the flow the inscriptions will be
