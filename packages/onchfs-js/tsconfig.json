@@ -20,5 +20,5 @@
     "strictNullChecks": false
   },
   "include": ["src/**/*", "__tests__/**/*"],
-  "exclude": ["src/static/**"]
+  "exclude": ["src/static/**", "src/**/*.test.ts"]
 }

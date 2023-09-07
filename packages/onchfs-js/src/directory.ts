@@ -1,6 +1,5 @@
 import { DEFAULT_CHUNK_SIZE, INODE_BYTE_IDENTIFIER } from "./config"
 import { prepareFile } from "./file"
-import keccak from "keccak"
 import {
   DirectoryInode,
   IFile,
@@ -9,6 +8,7 @@ import {
   PrepareDirectoryFile,
   PrepareDirectoryNode,
 } from "./types"
+import { concatUint8Arrays, keccak } from "./utils"
 
 /**
  * Encodes the filename in 7-bit ASCII, where UTF-8 characters are escaped. Will
@@ -31,14 +31,14 @@ export function encodeFilename(name: string): string {
 export function computeDirectoryInode(
   dir: PrepareDirectoryDir
 ): DirectoryInode {
-  const acc: Buffer[] = []
+  const acc: Uint8Array[] = []
   const filenames = Object.keys(dir.files).sort()
   const dirFiles: Record<string, INode> = {}
   for (const filename of filenames) {
     const inode = dir.files[filename].inode!
     dirFiles[filename] = inode
     // push filename hashed
-    acc.unshift(keccak("keccak256").update(filename).digest())
+    acc.unshift(keccak(filename))
     // push target inode cid
     acc.unshift(inode.cid)
   }
@@ -46,7 +46,7 @@ export function computeDirectoryInode(
   acc.unshift(INODE_BYTE_IDENTIFIER.DIRECTORY)
   return {
     type: "directory",
-    cid: keccak("keccak256").update(Buffer.concat(acc)).digest(),
+    cid: keccak(concatUint8Arrays(...acc)),
     files: dirFiles,
   }
 }

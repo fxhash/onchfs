@@ -2,19 +2,19 @@ import { INode } from "./types"
 
 export type InscriptionChunk = {
   type: "chunk"
-  content: Buffer
+  content: Uint8Array
 }
 
 export type InscriptionFile = {
   type: "file"
-  metadata: Buffer[]
-  chunks: Buffer[]
+  metadata: Uint8Array[]
+  chunks: Uint8Array[]
 }
 
 export type InscriptionDirectory = {
   type: "directory"
   files: {
-    [name: string]: Buffer
+    [name: string]: Uint8Array
   }
 }
 

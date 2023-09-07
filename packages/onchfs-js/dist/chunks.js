@@ -1,7 +1,8 @@
-import { DEFAULT_CHUNK_SIZE } from "./config"
-import { FileChunk } from "./types"
-import { BytesCopiedFrom, keccak } from "./utils"
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.chunkBytes = void 0;
+const config_1 = require("./config");
+const utils_1 = require("./utils");
 /**
  * Splits the content of a file into multiple chunks of the same size (except
  * if the remaining bytes of the last chunk don't cover a full chunk, in which
@@ -17,24 +18,19 @@ import { BytesCopiedFrom, keccak } from "./utils"
  * to be stored requires 32 bytes of extra storage.
  * @returns a list of chunks which can be uploaded to reconstruct the file
  */
-export function chunkBytes(
-  content: Uint8Array,
-  chunkSize: number = DEFAULT_CHUNK_SIZE
-): FileChunk[] {
-  const L = content.length
-  const nb = Math.ceil(L / chunkSize)
-  const chunks: FileChunk[] = []
-  let chunk: Uint8Array
-  for (let i = 0; i < nb; i++) {
-    chunk = BytesCopiedFrom(
-      content,
-      i * chunkSize,
-      Math.min(chunkSize, L - i * chunkSize)
-    )
-    chunks.push({
-      bytes: chunk,
-      hash: keccak(chunk),
-    })
-  }
-  return chunks
+function chunkBytes(content, chunkSize = config_1.DEFAULT_CHUNK_SIZE) {
+    const L = content.length;
+    const nb = Math.ceil(L / chunkSize);
+    const chunks = [];
+    let chunk;
+    for (let i = 0; i < nb; i++) {
+        chunk = (0, utils_1.BytesCopiedFrom)(content, i * chunkSize, Math.min(chunkSize, L - i * chunkSize));
+        chunks.push({
+            bytes: chunk,
+            hash: (0, utils_1.keccak)(chunk),
+        });
+    }
+    return chunks;
 }
+exports.chunkBytes = chunkBytes;
+//# sourceMappingURL=chunks.js.map

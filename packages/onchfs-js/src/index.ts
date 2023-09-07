@@ -1,9 +1,5 @@
-import { chunkFile } from "./chunks"
-import {
-  generateInscriptions,
-  inscriptionsStorageBytes,
-  Inscription,
-} from "./inscriptions"
+import { chunkBytes } from "./chunks"
+import { generateInscriptions, inscriptionsStorageBytes } from "./inscriptions"
 import {
   buildDirectoryGraph,
   computeDirectoryInode,
@@ -24,7 +20,7 @@ import {
  * consumer API.
  */
 const utils = {
-  chunkFile,
+  chunkBytes,
   encodeFilename,
   computeDirectoryInode,
   buildDirectoryGraph,
@@ -49,7 +45,6 @@ export {
   generateInscriptions,
   utils,
   config,
-  Inscription,
 }
 
 const Onchfs = {

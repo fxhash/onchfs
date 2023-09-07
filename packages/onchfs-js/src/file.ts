@@ -1,10 +1,10 @@
-import zopfli from "node-zopfli"
-import keccak from "keccak"
+import { gzip } from "pako"
 import { DEFAULT_CHUNK_SIZE, INODE_BYTE_IDENTIFIER } from "./config"
 import { FileMetadataEntries, encodeFileMetadata } from "./metadata"
 import { FileInode } from "./types"
 import { lookup as lookupMime } from "mime-types"
-import { chunkFile } from "./chunks"
+import { chunkBytes } from "./chunks"
+import { concatUint8Arrays, keccak } from "./utils"
 // import { fileTypeFromBuffer } from "file-type"
 
 /**
@@ -24,7 +24,7 @@ import { chunkFile } from "./chunks"
  */
 export async function prepareFile(
   name: string,
-  content: Buffer,
+  content: Uint8Array,
   chunkSize: number = DEFAULT_CHUNK_SIZE
 ): Promise<FileInode> {
   let metadata: FileMetadataEntries = {}
@@ -47,35 +47,23 @@ export async function prepareFile(
   }
 
   // compress into gzip using node zopfli, only keep if better
-  const compressed = zopfli.gzipSync(content, {
-    // adaptative number of iteration depending on file size
-    numiterations:
-      content.byteLength > 5_000_000
-        ? 5
-        : content.byteLength > 2_000_000
-        ? 10
-        : 15,
-  })
+  const compressed = gzip(content)
   if (compressed.byteLength < insertionBytes.byteLength) {
     insertionBytes = compressed
     metadata["Content-Encoding"] = "gzip"
   }
 
   // chunk the file
-  const chunks = chunkFile(insertionBytes, chunkSize)
+  const chunks = chunkBytes(insertionBytes, chunkSize)
   // encode the metadata
   const metadataEncoded = encodeFileMetadata(metadata)
   // compute the file unique identifier, following the onchfs specifications:
   // keccak( 0x01 , keccak( content ), keccak( metadata ) )
-  const contentHash = keccak("keccak256").update(insertionBytes).digest()
-  const metadataHash = keccak("keccak256")
-    .update(Buffer.concat(metadataEncoded))
-    .digest()
-  const cid = keccak("keccak256")
-    .update(
-      Buffer.concat([INODE_BYTE_IDENTIFIER.FILE, contentHash, metadataHash])
-    )
-    .digest()
+  const contentHash = keccak(insertionBytes)
+  const metadataHash = keccak(concatUint8Arrays(...metadataEncoded))
+  const cid = keccak(
+    concatUint8Arrays(INODE_BYTE_IDENTIFIER.FILE, contentHash, metadataHash)
+  )
 
   return {
     type: "file",
