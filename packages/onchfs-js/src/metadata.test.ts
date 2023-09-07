@@ -4,6 +4,8 @@ import {
   encodeFileMetadata,
 } from "./metadata"
 
+const hex = (str: string) => new Uint8Array(Buffer.from(str, "hex"))
+
 describe("validate metadata value", () => {
   test("1-255 ascii chars allowed", () => {
     const set = String.fromCharCode(
@@ -34,21 +36,19 @@ describe("file metadata encoding", () => {
   })
 
   test("different metadata fields are properly prefixed", () => {
-    expect(encodeFileMetadata({ "Content-Type": "" })).toEqual([
-      Buffer.from("0001", "hex"),
-    ])
+    expect(encodeFileMetadata({ "Content-Type": "" })).toEqual([hex("0001")])
     expect(encodeFileMetadata({ "Content-Encoding": "" } as any)).toEqual([
-      Buffer.from("0002", "hex"),
+      hex("0002"),
     ])
   })
 
   test("fields are encoded in the id-code asc order", () => {
     expect(
       encodeFileMetadata({ "Content-Type": "", "Content-Encoding": "" } as any)
-    ).toEqual([Buffer.from("0001", "hex"), Buffer.from("0002", "hex")])
+    ).toEqual([hex("0001"), hex("0002")])
     expect(
       encodeFileMetadata({ "Content-Encoding": "", "Content-Type": "" } as any)
-    ).toEqual([Buffer.from("0001", "hex"), Buffer.from("0002", "hex")])
+    ).toEqual([hex("0001"), hex("0002")])
   })
 
   test("encodes properly known results", () => {
@@ -87,7 +87,7 @@ describe("file metadata encoding", () => {
     ]
     for (const entry of known) {
       expect(encodeFileMetadata(entry.metadata as any)).toEqual(
-        entry.encoded.map(hex => Buffer.from(hex, "hex"))
+        entry.encoded.map(h => hex(h))
       )
     }
   })

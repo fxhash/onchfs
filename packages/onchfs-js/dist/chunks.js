@@ -1,14 +1,11 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.chunkBytes = void 0;
-const keccak_1 = __importDefault(require("keccak"));
 const config_1 = require("./config");
 const utils_1 = require("./utils");
 /**
  * Splits the content of a file into multiple chunks of the same size (except
+ * if the remaining bytes of the last chunk don't cover a full chunk, in which
  * case a smaller chunk upload will be required). Chunks are also hashed, as
  * such this function returns tuples of (chunk, chunkHash).
  * @param content Raw byte content of the file
@@ -27,10 +24,10 @@ function chunkBytes(content, chunkSize = config_1.DEFAULT_CHUNK_SIZE) {
     const chunks = [];
     let chunk;
     for (let i = 0; i < nb; i++) {
-        chunk = (0, utils_1.BufferCopyFrom)(content, i * chunkSize, Math.min(chunkSize, L - i * chunkSize));
+        chunk = (0, utils_1.BytesCopiedFrom)(content, i * chunkSize, Math.min(chunkSize, L - i * chunkSize));
         chunks.push({
             bytes: chunk,
-            hash: (0, keccak_1.default)("keccak256").update(chunk).digest(),
+            hash: (0, utils_1.keccak)(chunk),
         });
     }
     return chunks;

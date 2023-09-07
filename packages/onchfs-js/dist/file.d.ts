@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { FileInode } from "./types";
 /**
  * Computes all the necessary data for the inscription of the file on-chain.
@@ -15,4 +14,4 @@ import { FileInode } from "./types";
  * @param chunkSize Max number of bytes for chunking the file content
  * @returns A file node object with all the data necessary for its insertion
  */
-export declare function prepareFile(name: string, content: Buffer, chunkSize?: number): Promise<FileInode>;
+export declare function prepareFile(name: string, content: Uint8Array, chunkSize?: number): Promise<FileInode>;

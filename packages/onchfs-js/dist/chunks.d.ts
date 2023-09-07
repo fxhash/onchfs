@@ -1,7 +1,7 @@
-/// <reference types="node" />
 import { FileChunk } from "./types";
 /**
  * Splits the content of a file into multiple chunks of the same size (except
+ * if the remaining bytes of the last chunk don't cover a full chunk, in which
  * case a smaller chunk upload will be required). Chunks are also hashed, as
  * such this function returns tuples of (chunk, chunkHash).
  * @param content Raw byte content of the file
@@ -14,4 +14,4 @@ import { FileChunk } from "./types";
  * to be stored requires 32 bytes of extra storage.
  * @returns a list of chunks which can be uploaded to reconstruct the file
  */
-export declare function chunkBytes(content: Buffer, chunkSize?: number): FileChunk[];
+export declare function chunkBytes(content: Uint8Array, chunkSize?: number): FileChunk[];

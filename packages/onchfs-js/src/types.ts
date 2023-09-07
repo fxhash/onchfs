@@ -1,18 +1,18 @@
 export type FileChunk = {
-  bytes: Buffer
-  hash: Buffer
+  bytes: Uint8Array
+  hash: Uint8Array
 }
 
 export type FileInode = {
   type: "file"
   chunks: FileChunk[]
-  cid: Buffer
-  metadata: Buffer[]
+  cid: Uint8Array
+  metadata: Uint8Array[]
 }
 
 export type DirectoryInode = {
   type: "directory"
-  cid: Buffer
+  cid: Uint8Array
   files: {
     [name: string]: INode
   }
@@ -22,7 +22,7 @@ export type INode = DirectoryInode | FileInode
 
 export type IFile = {
   path: string
-  content: Buffer
+  content: Uint8Array
 }
 
 /**
@@ -34,7 +34,7 @@ export type IFile = {
 export type PrepareDirectoryFile = {
   type: "file"
   name: string
-  content: Buffer
+  content: Uint8Array
   parent: PrepareDirectoryDir
   inode?: FileInode
 }

@@ -1,11 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.encodeFileMetadata = exports.validateMetadataValue = exports.FORBIDDEN_METADATA_CHARS = exports.fileMetadataBytecodes = void 0;
+const util_1 = require("util");
+const utils_1 = require("./utils");
 // map of the metadata fields with their 2-byte identifier, used to encode
 // on the blockchain with a smaller footprint
 exports.fileMetadataBytecodes = {
-    "Content-Type": Buffer.from("0001", "hex"),
-    "Content-Encoding": Buffer.from("0002", "hex"),
+    "Content-Type": new Uint8Array([0, 1]),
+    "Content-Encoding": new Uint8Array([0, 2]),
 };
 // a list of the forbidden characters in the metadata
 // todo: point to where I found this in http specs
@@ -47,13 +49,10 @@ function encodeFileMetadata(metadata) {
             catch (err) {
                 throw new Error(`Error when validating the metadata field "${entry}": ${err.message}`);
             }
-            out.push(Buffer.concat([
-                exports.fileMetadataBytecodes[entry],
-                Buffer.from(value, "ascii"),
-            ]));
+            out.push((0, utils_1.concatUint8Arrays)(exports.fileMetadataBytecodes[entry], new util_1.TextEncoder().encode(value)));
         }
     }
-    return out.sort((a, b) => Buffer.compare(Buffer.from(a, 0, 2), Buffer.from(b, 0, 2)));
+    return out.sort((a, b) => (0, utils_1.compareUint8Arrays)(a, b));
 }
 exports.encodeFileMetadata = encodeFileMetadata;
 //# sourceMappingURL=metadata.js.map

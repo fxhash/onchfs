@@ -1,15 +1,12 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.prepareFile = void 0;
-const node_zopfli_1 = __importDefault(require("node-zopfli"));
-const keccak_1 = __importDefault(require("keccak"));
+const pako_1 = require("pako");
 const config_1 = require("./config");
 const metadata_1 = require("./metadata");
 const mime_types_1 = require("mime-types");
 const chunks_1 = require("./chunks");
+const utils_1 = require("./utils");
 // import { fileTypeFromBuffer } from "file-type"
 /**
  * Computes all the necessary data for the inscription of the file on-chain.
@@ -47,14 +44,7 @@ async function prepareFile(name, content, chunkSize = config_1.DEFAULT_CHUNK_SIZ
         metadata["Content-Type"] = mime;
     }
     // compress into gzip using node zopfli, only keep if better
-    const compressed = node_zopfli_1.default.gzipSync(content, {
-        // adaptative number of iteration depending on file size
-        numiterations: content.byteLength > 5000000
-            ? 5
-            : content.byteLength > 2000000
-                ? 10
-                : 15,
-    });
+    const compressed = (0, pako_1.gzip)(content);
     if (compressed.byteLength < insertionBytes.byteLength) {
         insertionBytes = compressed;
         metadata["Content-Encoding"] = "gzip";
@@ -65,13 +55,9 @@ async function prepareFile(name, content, chunkSize = config_1.DEFAULT_CHUNK_SIZ
     const metadataEncoded = (0, metadata_1.encodeFileMetadata)(metadata);
     // compute the file unique identifier, following the onchfs specifications:
     // keccak( 0x01 , keccak( content ), keccak( metadata ) )
-    const contentHash = (0, keccak_1.default)("keccak256").update(insertionBytes).digest();
-    const metadataHash = (0, keccak_1.default)("keccak256")
-        .update(Buffer.concat(metadataEncoded))
-        .digest();
-    const cid = (0, keccak_1.default)("keccak256")
-        .update(Buffer.concat([config_1.INODE_BYTE_IDENTIFIER.FILE, contentHash, metadataHash]))
-        .digest();
+    const contentHash = (0, utils_1.keccak)(insertionBytes);
+    const metadataHash = (0, utils_1.keccak)((0, utils_1.concatUint8Arrays)(...metadataEncoded));
+    const cid = (0, utils_1.keccak)((0, utils_1.concatUint8Arrays)(config_1.INODE_BYTE_IDENTIFIER.FILE, contentHash, metadataHash));
     return {
         type: "file",
         cid,

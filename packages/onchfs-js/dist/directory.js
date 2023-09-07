@@ -1,12 +1,9 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.prepareDirectory = exports.buildDirectoryGraph = exports.computeDirectoryInode = exports.encodeFilename = void 0;
 const config_1 = require("./config");
 const file_1 = require("./file");
-const keccak_1 = __importDefault(require("keccak"));
+const utils_1 = require("./utils");
 /**
  * Encodes the filename in 7-bit ASCII, where UTF-8 characters are escaped. Will
  * also escape any character that are not supported in the URI specification, as
@@ -33,7 +30,7 @@ function computeDirectoryInode(dir) {
         const inode = dir.files[filename].inode;
         dirFiles[filename] = inode;
         // push filename hashed
-        acc.unshift((0, keccak_1.default)("keccak256").update(filename).digest());
+        acc.unshift((0, utils_1.keccak)(filename));
         // push target inode cid
         acc.unshift(inode.cid);
     }
@@ -41,7 +38,7 @@ function computeDirectoryInode(dir) {
     acc.unshift(config_1.INODE_BYTE_IDENTIFIER.DIRECTORY);
     return {
         type: "directory",
-        cid: (0, keccak_1.default)("keccak256").update(Buffer.concat(acc)).digest(),
+        cid: (0, utils_1.keccak)((0, utils_1.concatUint8Arrays)(...acc)),
         files: dirFiles,
     };
 }

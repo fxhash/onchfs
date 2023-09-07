@@ -1,10 +1,9 @@
-/// <reference types="node" />
 export interface FileMetadataEntries {
     "Content-Type"?: string;
     "Content-Encoding"?: "gzip" | "deflate" | "compress";
 }
 export type FileMetadataBytecodes = {
-    [entry in keyof FileMetadataEntries]: Buffer;
+    [entry in keyof FileMetadataEntries]: Uint8Array;
 };
 export declare const fileMetadataBytecodes: FileMetadataBytecodes;
 export declare const FORBIDDEN_METADATA_CHARS: number[];
@@ -23,4 +22,4 @@ export declare function validateMetadataValue(value: string): void;
  * @param metadata The object metadata of a file
  * @returns An array of buffers, each entry representing one metadata property
  */
-export declare function encodeFileMetadata(metadata: FileMetadataEntries): Buffer[];
+export declare function encodeFileMetadata(metadata: FileMetadataEntries): Uint8Array[];
