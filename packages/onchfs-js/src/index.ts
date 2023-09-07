@@ -62,6 +62,6 @@ const Onchfs = {
 export default Onchfs
 
 // Used to expose the library to the browser build version
-if (global.window) {
-  ;(global.window as any).Onchfs = Onchfs
+if (typeof window !== "undefined") {
+  ;(window as any).Onchfs = Onchfs
 }
