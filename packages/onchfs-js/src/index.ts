@@ -1,5 +1,9 @@
 import { chunkBytes } from "./chunks"
-import { generateInscriptions, inscriptionsStorageBytes } from "./inscriptions"
+import {
+  generateInscriptions,
+  inscriptionsStorageBytes,
+  Inscription,
+} from "./inscriptions"
 import {
   buildDirectoryGraph,
   computeDirectoryInode,
@@ -45,6 +49,7 @@ export {
   generateInscriptions,
   utils,
   config,
+  Inscription,
 }
 
 const Onchfs = {
@@ -58,5 +63,5 @@ export default Onchfs
 
 // Used to expose the library to the browser build version
 if (global.window) {
-  global.window.Onchfs = Onchfs
+  ;(global.window as any).Onchfs = Onchfs
 }

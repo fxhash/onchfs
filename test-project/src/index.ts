@@ -1,10 +1,9 @@
-import Onchfs from "onchfs"
+import Onchfs, { Inscription } from "onchfs"
 import fs from "fs"
 import path from "path"
 import dir from "node-dir"
 import { TezosToolkit, ContractAbstraction } from "@taquito/taquito"
 import { InMemorySigner } from "@taquito/signer"
-import { Inscription } from "onchfs/dist/inscriptions"
 
 // test with any folder/file at the root of the tests folder
 const files = fs.readdirSync("./tests")

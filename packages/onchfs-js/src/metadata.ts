@@ -1,4 +1,3 @@
-import { TextEncoder } from "util"
 import { compareUint8Arrays, concatUint8Arrays } from "./utils"
 
 export interface FileMetadataEntries {

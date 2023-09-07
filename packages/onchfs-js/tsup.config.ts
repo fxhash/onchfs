@@ -1,6 +1,5 @@
 import { defineConfig } from "tsup"
 import { NodeModulesPolyfillPlugin } from "@esbuild-plugins/node-modules-polyfill"
-import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill"
 
 const defaultConfig = {
   entry: ["src/index.ts"],
@@ -22,11 +21,6 @@ export default defineConfig([
     ...defaultConfig,
     format: ["iife"],
     platform: "browser",
-    esbuildPlugins: [
-      NodeModulesPolyfillPlugin() as any,
-      NodeGlobalsPolyfillPlugin({
-        buffer: true,
-      }),
-    ],
+    esbuildPlugins: [NodeModulesPolyfillPlugin() as any],
   },
 ])
