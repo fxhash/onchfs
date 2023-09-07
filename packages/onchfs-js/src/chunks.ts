@@ -5,6 +5,7 @@ import { BufferCopyFrom } from "./utils"
 
 /**
  * Splits the content of a file into multiple chunks of the same size (except
+ * if the remaining bytes of the last chunk don't cover a full chunk, in which
  * case a smaller chunk upload will be required). Chunks are also hashed, as
  * such this function returns tuples of (chunk, chunkHash).
  * @param content Raw byte content of the file
@@ -17,7 +18,7 @@ import { BufferCopyFrom } from "./utils"
  * to be stored requires 32 bytes of extra storage.
  * @returns a list of chunks which can be uploaded to reconstruct the file
  */
-export function chunkBytes(
+export function chunkFile(
   content: Buffer,
   chunkSize: number = DEFAULT_CHUNK_SIZE
 ): FileChunk[] {
