@@ -49,3 +49,13 @@ export type PrepareDirectoryDir = {
 }
 
 export type PrepareDirectoryNode = PrepareDirectoryFile | PrepareDirectoryDir
+
+/**
+ * UTILS
+ */
+
+export type DeepPartial<T> = T extends object
+  ? {
+      [P in keyof T]?: DeepPartial<T[P]>
+    }
+  : T

@@ -21,6 +21,9 @@ export function chunkBytes(
   content: Uint8Array,
   chunkSize: number = DEFAULT_CHUNK_SIZE
 ): FileChunk[] {
+  if (chunkSize == 0) {
+    throw new Error(`invalid chunk size, must be positive integer`)
+  }
   const L = content.length
   const nb = Math.ceil(L / chunkSize)
   const chunks: FileChunk[] = []

@@ -18,6 +18,12 @@ import {
   fileMetadataBytecodes,
   validateMetadataValue,
 } from "./metadata"
+import {
+  parseAuthority,
+  parseSchema,
+  parseSchemaSpecificPart,
+  parseURI,
+} from "./uri"
 
 /**
  * Wraps the low-level utility functions in a nested object to cleanup the
@@ -43,14 +49,28 @@ const config = {
   inscriptionsStorageBytes,
 }
 
+/**
+ * Wraps th URI-related variables in a nested object
+ */
+const uri = {
+  parse: parseURI,
+  utils: {
+    parseSchema,
+    parseSchemaSpecificPart,
+    parseAuthority,
+  },
+}
+
 export {
   prepareFile,
   prepareDirectory,
   generateInscriptions,
   utils,
   config,
-  Inscription,
+  uri,
 }
+
+export type { Inscription }
 
 const Onchfs = {
   prepareFile,
@@ -58,6 +78,7 @@ const Onchfs = {
   generateInscriptions,
   utils,
   config,
+  uri,
 }
 export default Onchfs
 

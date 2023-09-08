@@ -9,15 +9,32 @@ describe("chunking some bytes", () => {
   })
 
   test("chunking 2 bytes with chunkskize=1 produces 2 chunks of 1 byte", () => {
-    expect(chunkBytes(u8(0, 0), 1)).toEqual([
+    expect(chunkBytes(u8(0, 1), 1)).toEqual([
       {
         bytes: u8(0),
         hash: keccak(u8(0)),
       },
       {
-        bytes: u8(0),
-        hash: keccak(u8(0)),
+        bytes: u8(1),
+        hash: keccak(u8(1)),
       },
     ])
+  })
+
+  test("chunking into unequals chunks leaves smaller last chunk", () => {
+    expect(chunkBytes(u8(0, 1, 2), 2)).toEqual([
+      {
+        bytes: u8(0, 1),
+        hash: keccak(u8(0, 1)),
+      },
+      {
+        bytes: u8(2),
+        hash: keccak(u8(2)),
+      },
+    ])
+  })
+
+  test("chunk size of 0 should throw", () => {
+    expect(() => chunkBytes(u8(0), 0)).toThrow()
   })
 })
