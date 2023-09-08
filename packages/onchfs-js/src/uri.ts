@@ -1,6 +1,3 @@
-import { parse } from "uri-js"
-import type { DeepPartial } from "./types"
-
 /**
  * List of the blockchain supported officially. While the protocol can be
  * deployed anywhere, the URI resolution is more easily inferred from the

@@ -14,6 +14,12 @@ import {
   fileMetadataBytecodes,
   validateMetadataValue,
 } from "./metadata"
+import {
+  parseAuthority,
+  parseSchema,
+  parseSchemaSpecificPart,
+  parseURI,
+} from "./uri"
 
 /**
  * Wraps the low-level utility functions in a nested object to cleanup the
@@ -39,10 +45,20 @@ const config = {
   inscriptionsStorageBytes,
 }
 
+const uri = {
+  parse: parseURI,
+  utils: {
+    parseSchema,
+    parseSchemaSpecificPart,
+    parseAuthority,
+  },
+}
+
 export default {
   prepareFile,
   prepareDirectory,
   generateInscriptions,
   utils,
   config,
+  uri,
 }
