@@ -24,12 +24,14 @@ import {
   parseSchemaSpecificPart,
   parseURI,
 } from "./uri"
+import { keccak } from "./utils"
 
 /**
  * Wraps the low-level utility functions in a nested object to cleanup the
  * consumer API.
  */
 const utils = {
+  keccak,
   chunkBytes,
   encodeFilename,
   computeDirectoryInode,
