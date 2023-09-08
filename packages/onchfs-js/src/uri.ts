@@ -45,7 +45,7 @@ export type URIContext = Pick<URIAuthority, "blockchainName"> &
  */
 export const defaultContractsMap: Record<string, string> = {
   "tezos:mainnet": "KT1WvzYHCNBvDSdwafTHv7nJ1dWmZ8GCYuuC",
-  "tezos:ghostnet": "KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton",
+  "tezos:ghostnet": "KT1XZ2FyRNtzYCBoy18Rp7R9oejvFSPqkBoy",
   "ethereum:1": "b0e58801d1b4d69179b7bc23fe54a37cee999b09",
   "ethereum:5": "fcfdfa971803e1cc201f80d8e74de71fddea6551",
 }
