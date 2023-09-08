@@ -1,5 +1,9 @@
 import { chunkBytes } from "./chunks"
-import { generateInscriptions, inscriptionsStorageBytes } from "./inscriptions"
+import {
+  generateInscriptions,
+  inscriptionsStorageBytes,
+  Inscription,
+} from "./inscriptions"
 import {
   buildDirectoryGraph,
   computeDirectoryInode,
@@ -45,6 +49,9 @@ const config = {
   inscriptionsStorageBytes,
 }
 
+/**
+ * Wraps th URI-related variables in a nested object
+ */
 const uri = {
   parse: parseURI,
   utils: {
@@ -54,11 +61,28 @@ const uri = {
   },
 }
 
-export default {
+export {
   prepareFile,
   prepareDirectory,
   generateInscriptions,
   utils,
   config,
   uri,
+}
+
+export type { Inscription }
+
+const Onchfs = {
+  prepareFile,
+  prepareDirectory,
+  generateInscriptions,
+  utils,
+  config,
+  uri,
+}
+export default Onchfs
+
+// Used to expose the library to the browser build version
+if (typeof window !== "undefined") {
+  ;(window as any).Onchfs = Onchfs
 }
