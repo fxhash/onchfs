@@ -1,4 +1,9 @@
-import { compareUint8Arrays, concatUint8Arrays } from "./utils"
+import {
+  BytesCopiedFrom,
+  areUint8ArrayEqual,
+  compareUint8Arrays,
+  concatUint8Arrays,
+} from "./utils"
 
 export interface FileMetadataEntries {
   "Content-Type"?: string
@@ -59,7 +64,7 @@ export function encodeFileMetadata(
       value = metadata[entry]
       try {
         validateMetadataValue(value)
-      } catch (err) {
+      } catch (err: any) {
         throw new Error(
           `Error when validating the metadata field "${entry}": ${err.message}`
         )
@@ -74,4 +79,25 @@ export function encodeFileMetadata(
   }
   out.sort(compareUint8Arrays)
   return out
+}
+
+export function decodeMetadataEntry(entry: Uint8Array) {
+  const bytecodeEntry = BytesCopiedFrom(entry, 0, 2)
+  for (const [header, bytecode] of Object.entries(fileMetadataBytecodes)) {
+    if (areUint8ArrayEqual(bytecodeEntry, bytecode)) {
+      return [header, new TextDecoder().decode(BytesCopiedFrom(entry, 2))]
+    }
+  }
+  return null
+}
+
+export function decodeFileMetadata(raw: Uint8Array[]) {
+  const metadata: FileMetadataEntries = {}
+  for (const line of raw) {
+    const entry = decodeMetadataEntry(line)
+    if (entry) {
+      metadata[entry[0]] = entry[1]
+    }
+  }
+  return metadata
 }

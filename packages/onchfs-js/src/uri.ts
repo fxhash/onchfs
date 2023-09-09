@@ -1,3 +1,5 @@
+import { Context } from "vm"
+
 /**
  * List of the blockchain supported officially. While the protocol can be
  * deployed anywhere, the URI resolution is more easily inferred from the
@@ -156,7 +158,7 @@ export function parseSchema(uri: string): string {
  * The different segments of the URI Schema-Specific Component:
  * [ authority "/" ] cid [path] [ "?" query ] [ "#" fragment ]
  */
-export interface URISchemaSpecificComponent {
+export interface URISchemaSpecificParts {
   cid: string
   authority?: string
   path?: string
@@ -171,7 +173,9 @@ export interface URISchemaSpecificComponent {
  * @param uriPart THe URI Schema-Specific Component
  * @returns An object with the different segments isolated
  */
-export function parseSchemaSpecificPart(uriPart: string) {
+export function parseSchemaSpecificPart(
+  uriPart: string
+): URISchemaSpecificParts {
   const authorityReg = `([${AUTHORITY_CHARSET}]*)\\/`
   const cidReg = `[${HEX_CHARSET}]{64}`
   const pathReg = `${SEG_CHARSET}*(?:\\/${SEG_CHARSET}*)*`
@@ -324,3 +328,22 @@ export function parseAuthority(
 
   return tmp as URIAuthority
 }
+
+/**
+ * Serializes an URI for a given context. The more context is associated with
+ * the URI, the more its <authority> segment can be inferred by parsers.
+ * @param components The various URI components
+ * @param context The context in which the URI will be observed
+ * @returns The serialized URI
+ */
+// export function serializeURI(
+//   components: URIComponents,
+//   context?: URIContext
+// ): string {
+//   let uri = "onchfs://"
+//   if (context?.blockchainName)
+// }
+
+// ctx: tezos|ghostnet
+
+// export function normalizeURIComponents(components: URIComponents)

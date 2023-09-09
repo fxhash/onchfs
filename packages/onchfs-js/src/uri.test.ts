@@ -3,7 +3,7 @@ import {
   URIContext,
   parseURI,
   parseSchema,
-  URISchemaSpecificComponent,
+  URISchemaSpecificParts,
   parseSchemaSpecificPart,
   parseAuthority,
   URIAuthority,
@@ -484,7 +484,7 @@ describe("parseSchema", () => {
 
 describe("parse schema-specific components", () => {
   it("should output expected results among known outputs", () => {
-    const set: { uri: string; output: URISchemaSpecificComponent }[] = [
+    const set: { uri: string; output: URISchemaSpecificParts }[] = [
       {
         uri: "6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840/folder/index.html?param1=4&param2=heyheyhey#a-fragment",
         output: {
@@ -541,7 +541,7 @@ describe("parse schema-specific components", () => {
   })
 
   it("should still parse semi-invalid authority segment", () => {
-    const set: { uri: string; output: URISchemaSpecificComponent }[] = [
+    const set: { uri: string; output: URISchemaSpecificParts }[] = [
       {
         uri: "aaaaaaaaaaaaaaaaaa:5/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
         output: {
