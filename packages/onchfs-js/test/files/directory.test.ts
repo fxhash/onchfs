@@ -1,4 +1,4 @@
-import { buildDirectoryGraph } from "./directory"
+import { buildDirectoryGraph } from "../../src/files/directory"
 
 const ef = (path: string) => ({
   path,

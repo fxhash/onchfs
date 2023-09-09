@@ -1,35 +1,35 @@
-import { chunkBytes } from "./chunks"
+import { chunkBytes } from "./files/chunks"
 import {
   generateInscriptions,
   inscriptionsStorageBytes,
   Inscription,
-} from "./inscriptions"
+} from "@/files/inscriptions"
 import {
   buildDirectoryGraph,
   computeDirectoryInode,
   encodeFilename,
   prepareDirectory,
-} from "./directory"
-import { prepareFile } from "./file"
-import { DEFAULT_CHUNK_SIZE, INODE_BYTE_IDENTIFIER } from "./config"
+} from "@/files/directory"
+import { prepareFile } from "@/files/file"
+import { DEFAULT_CHUNK_SIZE, INODE_BYTE_IDENTIFIER } from "@/config"
 import {
   FORBIDDEN_METADATA_CHARS,
   encodeFileMetadata,
   fileMetadataBytecodes,
   validateMetadataValue,
-} from "./metadata"
+} from "@/files/metadata"
 import {
   parseAuthority,
   parseSchema,
   parseSchemaSpecificPart,
   parseURI,
-} from "./uri"
+} from "@/resolution/uri"
 import {
   InodeNativeFS,
   ProxyResolutionResponse,
   createOnchfsResolver,
-} from "./resolver/factory"
-import { hexStringToBytes } from "./utils"
+} from "./resolution/factory"
+import { hexStringToBytes } from "@/utils"
 
 /**
  * Wraps the low-level utility functions in a nested object to cleanup the

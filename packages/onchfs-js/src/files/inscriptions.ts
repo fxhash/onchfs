@@ -1,4 +1,4 @@
-import { INode } from "./types"
+import { INode } from "@/types"
 
 export type InscriptionChunk = {
   type: "chunk"

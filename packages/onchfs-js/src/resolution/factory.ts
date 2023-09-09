@@ -1,12 +1,12 @@
-import { FileMetadataEntries, decodeFileMetadata } from "../metadata"
+import { FileMetadataEntries, decodeFileMetadata } from "@/files/metadata"
 import {
   URIAuthority,
   URISchemaSpecificParts,
   parseAuthority,
   parseSchema,
   parseSchemaSpecificPart,
-} from "../uri"
-import { hexStringToBytes } from "../utils"
+} from "./uri"
+import { hexStringToBytes } from "@/utils"
 import { OnchfsProxyResolutionError } from "./errors"
 
 interface InodeFileNativeFS {

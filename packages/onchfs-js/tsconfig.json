@@ -17,8 +17,11 @@
     "noUnusedParameters": true,
     "noImplicitAny": false,
     "noImplicitThis": false,
-    "strictNullChecks": false
+    "strictNullChecks": false,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
-  "include": ["src/**/*", "__tests__/**/*"],
-  "exclude": ["src/static/**", "src/**/*.test.ts"]
+  "include": ["src/**/*"],
+  "exclude": ["test/**/*"]
 }

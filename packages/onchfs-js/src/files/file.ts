@@ -1,10 +1,10 @@
 import { gzip } from "pako"
-import { DEFAULT_CHUNK_SIZE, INODE_BYTE_IDENTIFIER } from "./config"
+import { DEFAULT_CHUNK_SIZE, INODE_BYTE_IDENTIFIER } from "@/config"
 import { FileMetadataEntries, encodeFileMetadata } from "./metadata"
-import { FileInode } from "./types"
+import { FileInode } from "@/types"
 import { lookup as lookupMime } from "mime-types"
 import { chunkBytes } from "./chunks"
-import { concatUint8Arrays, keccak } from "./utils"
+import { concatUint8Arrays, keccak } from "@/utils"
 // import { fileTypeFromBuffer } from "file-type"
 
 /**

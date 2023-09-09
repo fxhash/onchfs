@@ -1,5 +1,3 @@
-import { Context } from "vm"
-
 /**
  * List of the blockchain supported officially. While the protocol can be
  * deployed anywhere, the URI resolution is more easily inferred from the

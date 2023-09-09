@@ -1,4 +1,4 @@
-import { compareUint8Arrays, hexStringToBytes } from "./utils"
+import { compareUint8Arrays, hexStringToBytes } from "../src/utils"
 
 const u8 = (...n: number[]) => new Uint8Array(n)
 

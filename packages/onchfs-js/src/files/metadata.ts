@@ -3,7 +3,7 @@ import {
   areUint8ArrayEqual,
   compareUint8Arrays,
   concatUint8Arrays,
-} from "./utils"
+} from "@/utils"
 
 export interface FileMetadataEntries {
   "Content-Type"?: string

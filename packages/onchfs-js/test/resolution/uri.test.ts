@@ -8,7 +8,7 @@ import {
   parseAuthority,
   URIAuthority,
   defaultContractsMap,
-} from "./uri"
+} from "../../src/resolution/uri"
 
 const CHARSETS = (() => {
   const LOW_ALPHA = "abcdefghijklmnopqrstuvwxyz"
