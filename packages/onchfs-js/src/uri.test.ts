@@ -20,6 +20,7 @@ const CHARSETS = (() => {
   const LOW_RESERVED = ";:@&="
   const RESERVED = LOW_RESERVED + "/?#"
   const HEX = DIGIT + "ABCDEFabcdef"
+  const B58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
   const UNRESERVED = ALPHA + DIGIT + SAFE + EXTRA
   const UCHAR = UNRESERVED //+ ESCAPE
   const XCHAR = UNRESERVED + RESERVED //+ ESCAPE
@@ -43,6 +44,7 @@ const CHARSETS = (() => {
     LOW_RESERVED: arr(LOW_RESERVED),
     RESERVED: arr(RESERVED),
     HEX: arr(HEX),
+    B58: arr(B58),
     UNRESERVED: arr(UNRESERVED),
     UCHAR: arr(UCHAR).concat(ESCAPE),
     XCHAR: arr(XCHAR).concat(ESCAPE),
@@ -181,6 +183,50 @@ describe("fragment segment MUST only accept certain characters", () => {
       expect(() =>
         parseURI(`${SANE}/#${C}`, { blockchainName: "tezos" })
       ).toThrow()
+    })
+  }
+})
+
+describe("tezos pattern constrains", () => {
+  const KT_BASE = (a: string, c: string) =>
+    `KT${a}WvzYHCNBvDSdwafTHv7nJ1dWmZ8GCYuu${c}`
+  const BASE = (a: string, c: string) => `${KT_BASE(a, c)}.tezos`
+
+  test("sanity check with known valid address", () => {
+    expect(parseAuthority(BASE("1", "a"))).toHaveProperty(
+      "contract",
+      KT_BASE("1", "a")
+    )
+  })
+
+  const ALLOWED_IDS = "1234".split("")
+  for (const C of ALLOWED_IDS) {
+    it(`MUST accept valid digit following KT: "${C}"`, () => {
+      expect(parseAuthority(BASE(C, "a"))).toHaveProperty(
+        "contract",
+        KT_BASE(C, "a")
+      )
+    })
+  }
+  const FORBID_IDS = CHARSETS.XCHAR.filter(C => !ALLOWED_IDS.includes(C))
+  for (const C of FORBID_IDS) {
+    it(`MUST reject "${C}" following KT`, () => {
+      expect(() => parseAuthority(BASE(C, "a"))).toThrow()
+    })
+  }
+
+  for (const C of CHARSETS.B58) {
+    it(`MUST accept any base58 character: "${C}"`, () => {
+      expect(parseAuthority(BASE("1", C))).toHaveProperty(
+        "contract",
+        KT_BASE("1", C)
+      )
+    })
+  }
+  const FORBID = CHARSETS.XCHAR.filter(C => !CHARSETS.B58.includes(C))
+  for (const C of FORBID) {
+    it(`MUST reject "${C}" as invalid B58 character`, () => {
+      expect(() => parseAuthority(BASE("1", C))).toThrow()
     })
   }
 })

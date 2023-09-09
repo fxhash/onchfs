@@ -51,6 +51,30 @@ export const defaultContractsMap: Record<string, string> = {
 }
 
 /**
+ * Proper charsets tightly following the spec
+ */
+
+const LOW_ALPHA = "a-z"
+const HI_ALPHA = "A-Z"
+const ALPHA = LOW_ALPHA + HI_ALPHA
+const DIGIT = "0-9"
+const SAFE = "$\\-_.+"
+const EXTRA = "!*'(),~"
+const HEX_CHARSET = "A-Fa-f0-9"
+const LOW_RESERVED = ";:@&="
+const RESERVED = LOW_RESERVED + "\\/?#"
+const UNRESERVED = ALPHA + DIGIT + SAFE + EXTRA
+const PCT_ENCODED = `%[${HEX_CHARSET}]{2}`
+const UCHAR = `(?:(?:[${UNRESERVED}])|(?:${PCT_ENCODED}))`
+const XCHAR = `(?:(?:[${UNRESERVED}${RESERVED}])|(?:${PCT_ENCODED}))`
+
+const URI_CHARSET = XCHAR
+const B58_CHARSET = "1-9A-HJ-NP-Za-km-z"
+const AUTHORITY_CHARSET = `${HEX_CHARSET}${B58_CHARSET}.a-z:`
+const SEG_CHARSET = `(?:(?:${UCHAR})|[${LOW_RESERVED}])`
+const QUERY_CHARSET = `(?:${SEG_CHARSET}|\\/|\\?)`
+
+/**
  * Parses an absolute onchfs URI, following its ABNF specification. If any part
  * of the URI is mal-constructed, or if some context is missing to fully
  * resolve it, this function will throw with an error indicating where the
@@ -105,27 +129,6 @@ export function parseURI(uri: string, context?: URIContext): URIComponents {
     )
   }
 }
-
-// list of the caracters allowed in URIs
-const LOW_ALPHA = "a-z"
-const HI_ALPHA = "A-Z"
-const ALPHA = LOW_ALPHA + HI_ALPHA
-const DIGIT = "0-9"
-const SAFE = "$\\-_.+"
-const EXTRA = "!*'(),~"
-const HEX_CHARSET = "A-Fa-f0-9"
-const LOW_RESERVED = ";:@&="
-const RESERVED = LOW_RESERVED + "\\/?#"
-const UNRESERVED = ALPHA + DIGIT + SAFE + EXTRA
-const PCT_ENCODED = `%[${HEX_CHARSET}]{2}`
-const UCHAR = `(?:(?:[${UNRESERVED}])|(?:${PCT_ENCODED}))`
-const XCHAR = `(?:(?:[${UNRESERVED}${RESERVED}])|(?:${PCT_ENCODED}))`
-
-const URI_CHARSET = XCHAR
-const B58_CHARSET = "1-9ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-const AUTHORITY_CHARSET = `${HEX_CHARSET}${B58_CHARSET}.a-z:`
-const SEG_CHARSET = `(?:(?:${UCHAR})|[${LOW_RESERVED}])`
-const QUERY_CHARSET = `(?:${SEG_CHARSET}|\\/|\\?)`
 
 /**
  * 1st order URI parsing; checks if the overall URI is valid by looking at the
