@@ -98,7 +98,7 @@ export function parseURI(uri: string, context?: URIContext): URIComponents {
       cid: schemaSegments.cid.toLowerCase(),
       authority: authority,
     }
-  } catch (err) {
+  } catch (err: any) {
     // catch to prefix low-level error message with generic message
     throw new Error(
       `Error when parsing the URI "${uri}" as a onchfs URI: ${err.message}`
@@ -107,12 +107,24 @@ export function parseURI(uri: string, context?: URIContext): URIComponents {
 }
 
 // list of the caracters allowed in URIs
-const URI_CHARSET = "A-Za-z0-9\\-._~:\\/?#\\[\\]@!$&'()*+,;="
+const LOW_ALPHA = "a-z"
+const HI_ALPHA = "A-Z"
+const ALPHA = LOW_ALPHA + HI_ALPHA
+const DIGIT = "0-9"
+const SAFE = "$\\-_.+"
+const EXTRA = "!*'(),~"
 const HEX_CHARSET = "A-Fa-f0-9"
+const LOW_RESERVED = ";:@&="
+const RESERVED = LOW_RESERVED + "\\/?#"
+const UNRESERVED = ALPHA + DIGIT + SAFE + EXTRA
+const PCT_ENCODED = `%[${HEX_CHARSET}]{2}`
+const UCHAR = `(?:(?:[${UNRESERVED}])|(?:${PCT_ENCODED}))`
+const XCHAR = `(?:(?:[${UNRESERVED}${RESERVED}])|(?:${PCT_ENCODED}))`
+
+const URI_CHARSET = XCHAR
 const B58_CHARSET = "1-9ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 const AUTHORITY_CHARSET = `${HEX_CHARSET}${B58_CHARSET}.a-z:`
-const PCT_ENCODED = `%[${HEX_CHARSET}]{2}`
-const SEG_CHARSET = `(?:[a-zA-Z0-9-._~!$&'()*+,;=:@]|(?:${PCT_ENCODED}))`
+const SEG_CHARSET = `(?:(?:${UCHAR})|[${LOW_RESERVED}])`
 const QUERY_CHARSET = `(?:${SEG_CHARSET}|\\/|\\?)`
 
 /**
@@ -124,7 +136,7 @@ const QUERY_CHARSET = `(?:${SEG_CHARSET}|\\/|\\?)`
  * @returns The URI schema-specific part
  */
 export function parseSchema(uri: string): string {
-  const regex = new RegExp(`^(onchfs):\/\/([${URI_CHARSET}]{64,})$`)
+  const regex = new RegExp(`^(onchfs):\/\/(${URI_CHARSET}{64,})$`)
   const results = regex.exec(uri)
 
   // result is null, the regex missed
@@ -159,14 +171,14 @@ export interface URISchemaSpecificComponent {
 export function parseSchemaSpecificPart(uriPart: string) {
   const authorityReg = `([${AUTHORITY_CHARSET}]*)\\/`
   const cidReg = `[${HEX_CHARSET}]{64}`
-  const pathReg = `(?:\\/${SEG_CHARSET}{1,}){1,}`
+  const pathReg = `${SEG_CHARSET}*(?:\\/${SEG_CHARSET}*)*`
   const queryReg = `\\?(${QUERY_CHARSET}*)`
   const fragReg = `#(${QUERY_CHARSET}*)`
 
   // isolates each segment of the URI based on their pattern, including
   // cardinality of every segment
   const regex = new RegExp(
-    `^(?:${authorityReg})?(${cidReg})(${pathReg})?(?:${queryReg})?(?:${fragReg})?$`
+    `^(?:${authorityReg})?(${cidReg})(?:\\/(${pathReg}))?(?:${queryReg})?(?:${fragReg})?$`
   )
 
   const res = regex.exec(uriPart)
@@ -247,21 +259,23 @@ export function parseAuthority(
   // initialise the authority object to the given context
   let tmp: Partial<URIAuthority> = { ...context }
 
-  // loop through every blockchain and use its authority-regex to identify
-  // the different parts, potentially
-  let regex: RegExp, res: RegExpExecArray
-  for (const name of blockchainNames) {
-    // generate the blockchain-related regex and parse the authority
-    regex = blockchainAuthorityParsers[name]()
-    res = regex.exec(authority)
-    // no result; move to next blockchain
-    if (!res) continue
-    // results are in slots [1;3] - assign to temp object being parsed
-    const [contract, blockchainName, blockchainId] = res.splice(1, 3)
-    contract && (tmp.contract = contract)
-    blockchainName && (tmp.blockchainName = blockchainName)
-    blockchainId && (tmp.blockchainId = blockchainId)
-    break
+  if (authority) {
+    // loop through every blockchain and use its authority-regex to identify
+    // the different parts, potentially
+    let regex: RegExp, res: RegExpExecArray | null
+    for (const name of blockchainNames) {
+      // generate the blockchain-related regex and parse the authority
+      regex = blockchainAuthorityParsers[name]()
+      res = regex.exec(authority)
+      // no result; move to next blockchain
+      if (!res) continue
+      // results are in slots [1;3] - assign to temp object being parsed
+      const [contract, blockchainName, blockchainId] = res.splice(1, 3)
+      contract && (tmp.contract = contract)
+      blockchainName && (tmp.blockchainName = blockchainName)
+      blockchainId && (tmp.blockchainId = blockchainId)
+      break
+    }
   }
 
   // at this stage, if there isn't a blockchain name, then we can throw as the
