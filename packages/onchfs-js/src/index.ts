@@ -23,13 +23,14 @@ import {
   parseSchema,
   parseSchemaSpecificPart,
   parseURI,
-} from "@/resolution/uri"
+} from "@/resolve/uri"
 import {
   InodeNativeFS,
   ProxyResolutionResponse,
-  createOnchfsResolver,
-} from "./resolution/factory"
+  createProxyResolver,
+} from "./resolve/proxy"
 import { hexStringToBytes } from "@/utils"
+import * as files from "@/files"
 
 /**
  * Wraps the low-level utility functions in a nested object to cleanup the
@@ -69,7 +70,7 @@ const uri = {
 }
 
 const resolver = {
-  create: createOnchfsResolver,
+  create: createProxyResolver,
 }
 
 export {
@@ -80,6 +81,7 @@ export {
   config,
   uri,
   resolver,
+  files,
 }
 
 export type { Inscription, InodeNativeFS, ProxyResolutionResponse }
@@ -92,6 +94,7 @@ const Onchfs = {
   config,
   uri,
   resolver,
+  files,
 }
 export default Onchfs
 

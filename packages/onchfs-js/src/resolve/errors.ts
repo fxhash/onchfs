@@ -1,4 +1,4 @@
-import { ProxyResolutionStatusErrors } from "./factory"
+import { ProxyResolutionStatusErrors } from "./proxy"
 
 /**
  * Error thrown during the resolution of a relative URI by the proxy.

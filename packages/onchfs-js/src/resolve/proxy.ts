@@ -22,7 +22,7 @@ interface InodeDirectoryNativeFS {
 
 export type InodeNativeFS = InodeFileNativeFS | InodeDirectoryNativeFS
 
-interface Resolver {
+export interface Resolver {
   getInodeAtPath: (
     cid: string,
     path: string[],
@@ -97,7 +97,7 @@ export interface ProxyResolutionResponse {
  * application, which can implement different strategies based on the
  * use-cases.
  */
-export function createOnchfsResolver(resolver: Resolver) {
+export function createProxyResolver(resolver: Resolver) {
   /**
    * A function which takes an URI as an input and executes a serie of
    * operations to retrieve the file targetted by the URI. The resolution
