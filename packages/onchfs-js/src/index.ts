@@ -1,30 +1,36 @@
-import { chunkBytes } from "./chunks"
+import { chunkBytes } from "./files/chunks"
 import {
   generateInscriptions,
   inscriptionsStorageBytes,
   Inscription,
-} from "./inscriptions"
+} from "@/files/inscriptions"
 import {
   buildDirectoryGraph,
   computeDirectoryInode,
   encodeFilename,
   prepareDirectory,
-} from "./directory"
-import { prepareFile } from "./file"
-import { DEFAULT_CHUNK_SIZE, INODE_BYTE_IDENTIFIER } from "./config"
+} from "@/files/directory"
+import { prepareFile } from "@/files/file"
+import { DEFAULT_CHUNK_SIZE, INODE_BYTE_IDENTIFIER } from "@/config"
 import {
   FORBIDDEN_METADATA_CHARS,
   encodeFileMetadata,
   fileMetadataBytecodes,
   validateMetadataValue,
-} from "./metadata"
+} from "@/files/metadata"
 import {
   parseAuthority,
   parseSchema,
   parseSchemaSpecificPart,
   parseURI,
-} from "./uri"
-import { keccak } from "./utils"
+} from "@/resolve/uri"
+import {
+  InodeNativeFS,
+  ProxyResolutionResponse,
+  createProxyResolver,
+} from "./resolve/proxy"
+import { hexStringToBytes, keccak } from "@/utils"
+import * as files from "@/files"
 
 /**
  * Wraps the low-level utility functions in a nested object to cleanup the
@@ -38,6 +44,7 @@ const utils = {
   buildDirectoryGraph,
   validateMetadataValue,
   encodeFileMetadata,
+  hexStringToBytes,
 }
 
 /**
@@ -63,6 +70,10 @@ const uri = {
   },
 }
 
+const resolver = {
+  create: createProxyResolver,
+}
+
 export {
   prepareFile,
   prepareDirectory,
@@ -70,9 +81,11 @@ export {
   utils,
   config,
   uri,
+  resolver,
+  files,
 }
 
-export type { Inscription }
+export type { Inscription, InodeNativeFS, ProxyResolutionResponse }
 
 const Onchfs = {
   prepareFile,
@@ -81,6 +94,8 @@ const Onchfs = {
   utils,
   config,
   uri,
+  resolver,
+  files,
 }
 export default Onchfs
 

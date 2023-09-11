@@ -3,12 +3,233 @@ import {
   URIContext,
   parseURI,
   parseSchema,
-  URISchemaSpecificComponent,
+  URISchemaSpecificParts,
   parseSchemaSpecificPart,
   parseAuthority,
   URIAuthority,
   defaultContractsMap,
-} from "./uri"
+} from "../../src/resolve/uri"
+
+const CHARSETS = (() => {
+  const LOW_ALPHA = "abcdefghijklmnopqrstuvwxyz"
+  const HI_ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  const ALPHA = LOW_ALPHA + HI_ALPHA
+  const DIGIT = "0123456789"
+  const SAFE = "$-_.+"
+  const EXTRA = "!*'(),~"
+  const LOW_RESERVED = ";:@&="
+  const RESERVED = LOW_RESERVED + "/?#"
+  const HEX = DIGIT + "ABCDEFabcdef"
+  const B58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+  const UNRESERVED = ALPHA + DIGIT + SAFE + EXTRA
+  const UCHAR = UNRESERVED //+ ESCAPE
+  const XCHAR = UNRESERVED + RESERVED //+ ESCAPE
+
+  let ESCAPE: string[] = []
+  for (const c1 of HEX) {
+    for (const c2 of HEX) {
+      ESCAPE.push(`%${c1}${c2}`)
+    }
+  }
+
+  const arr = (s: string) => s.split("")
+
+  return {
+    LOW_ALPHA: arr(LOW_ALPHA),
+    HI_ALPHA: arr(HI_ALPHA),
+    ALPHA: arr(ALPHA),
+    DIGIT: arr(DIGIT),
+    SAFE: arr(SAFE),
+    EXTRA: arr(EXTRA),
+    LOW_RESERVED: arr(LOW_RESERVED),
+    RESERVED: arr(RESERVED),
+    HEX: arr(HEX),
+    B58: arr(B58),
+    UNRESERVED: arr(UNRESERVED),
+    UCHAR: arr(UCHAR).concat(ESCAPE),
+    XCHAR: arr(XCHAR).concat(ESCAPE),
+    ALL: new Array(256).fill(0).map((_, i) => String.fromCharCode(i)),
+  }
+})()
+
+/**
+ * We test a base URI to be valid, which will be used for testing other cases
+ * such base is sane.
+ */
+const SANE =
+  "onchfs://6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840"
+describe("sanity check", () => {
+  it("should pass sanity check", () => {
+    expect(() => parseSchema(SANE)).not.toThrow()
+    expect(() => parseURI(SANE, { blockchainName: "tezos" })).not.toThrow()
+  })
+})
+
+/**
+ * Testing characters allowed AND ONLY characters allowed are passing.
+ */
+describe("URI charset overview", () => {
+  for (const C of CHARSETS.XCHAR) {
+    test(`schem-specific part MUST allow "${C}"`, () => {
+      expect(() => parseSchema(`${SANE}${C}`)).not.toThrow()
+    })
+  }
+
+  // all the ASCII characters MINUS allowed set
+  const FORBIDDEN_CHARS = CHARSETS.ALL.filter(C => !CHARSETS.XCHAR.includes(C))
+
+  for (const C of FORBIDDEN_CHARS) {
+    test(`character code ${C.charCodeAt(0)} is forbidden`, () => {
+      expect(() => parseSchema(`${SANE}${C}`)).toThrow()
+    })
+  }
+})
+
+describe("cid MUST only be formed of hex characters", () => {
+  const CID_MIN_1 =
+    "6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f72684"
+  const SANE2 = `onchfs://${CID_MIN_1}`
+
+  for (const C of CHARSETS.HEX) {
+    it(`MUST allow "${C}"`, () => {
+      expect(
+        parseURI(SANE2 + C + "/path", { blockchainName: "tezos" })
+      ).toHaveProperty("cid", (CID_MIN_1 + C).toLowerCase())
+    })
+  }
+
+  // all the ASCII characters MINUS allowed set
+  const FORBIDDEN_CHARS = CHARSETS.ALL.filter(C => !CHARSETS.HEX.includes(C))
+  for (const C of FORBIDDEN_CHARS) {
+    test(`character code ${C.charCodeAt(0)} is forbidden`, () => {
+      expect(() =>
+        parseURI(SANE2 + C + "/path", { blockchainName: "tezos" })
+      ).toThrow()
+    })
+  }
+})
+
+describe("path segment MUST only accept certain characters", () => {
+  const SEG_CHAR = CHARSETS.UCHAR.concat(";:@&=".split(""))
+  for (const C of SEG_CHAR) {
+    it(`MUST allow "${C}"`, () => {
+      expect(
+        parseURI(`${SANE}/${C}/${C}?q=a`, {
+          blockchainName: "tezos",
+        })
+      ).toHaveProperty("path", `${C}/${C}`)
+    })
+  }
+
+  // all the URI-allowed characters MINUS allowed set
+  const FORBIDDEN_CHARS = CHARSETS.XCHAR.filter(C => !SEG_CHAR.includes(C))
+  for (const C of FORBIDDEN_CHARS) {
+    // the "/" character is avoided as it's allowed to delimit paths and will
+    // be caught by the parser as part of the path, rightfully
+    if (C === "/") continue
+    test(`character ${C} is forbidden`, () => {
+      expect(
+        parseURI(`${SANE}/a${C}`, { blockchainName: "tezos" })
+      ).toHaveProperty("path", "a")
+    })
+  }
+})
+
+describe("query segment MUST only accept certain characters", () => {
+  const SEG_CHAR = CHARSETS.UCHAR.concat(CHARSETS.LOW_RESERVED).concat([
+    "/",
+    "?",
+  ])
+  for (const C of SEG_CHAR) {
+    it(`MUST allow "${C}"`, () => {
+      expect(
+        parseURI(`${SANE}/badoom?${C}#delim`, {
+          blockchainName: "tezos",
+        })
+      ).toHaveProperty("query", C)
+    })
+  }
+
+  // all the URI-allowed characters MINUS allowed set
+  const FORBIDDEN_CHARS = CHARSETS.XCHAR.filter(C => !SEG_CHAR.includes(C))
+  for (const C of FORBIDDEN_CHARS) {
+    test(`character "${C}" is forbidden`, () => {
+      expect(() =>
+        parseURI(`${SANE}/badoom?a${C}#delim`, { blockchainName: "tezos" })
+      ).toThrow()
+    })
+  }
+})
+
+describe("fragment segment MUST only accept certain characters", () => {
+  const SEG_CHAR = CHARSETS.UCHAR.concat(CHARSETS.LOW_RESERVED).concat([
+    "/",
+    "?",
+  ])
+  for (const C of SEG_CHAR) {
+    it(`MUST allow "${C}"`, () => {
+      expect(
+        parseURI(`${SANE}/badoom#${C}`, {
+          blockchainName: "tezos",
+        })
+      ).toHaveProperty("fragment", C)
+    })
+  }
+
+  // all the URI-allowed characters MINUS allowed set
+  const FORBIDDEN_CHARS = CHARSETS.XCHAR.filter(C => !SEG_CHAR.includes(C))
+  for (const C of FORBIDDEN_CHARS) {
+    test(`character "${C}" is forbidden`, () => {
+      expect(() =>
+        parseURI(`${SANE}/#${C}`, { blockchainName: "tezos" })
+      ).toThrow()
+    })
+  }
+})
+
+describe("tezos pattern constrains", () => {
+  const KT_BASE = (a: string, c: string) =>
+    `KT${a}WvzYHCNBvDSdwafTHv7nJ1dWmZ8GCYuu${c}`
+  const BASE = (a: string, c: string) => `${KT_BASE(a, c)}.tezos`
+
+  test("sanity check with known valid address", () => {
+    expect(parseAuthority(BASE("1", "a"))).toHaveProperty(
+      "contract",
+      KT_BASE("1", "a")
+    )
+  })
+
+  const ALLOWED_IDS = "1234".split("")
+  for (const C of ALLOWED_IDS) {
+    it(`MUST accept valid digit following KT: "${C}"`, () => {
+      expect(parseAuthority(BASE(C, "a"))).toHaveProperty(
+        "contract",
+        KT_BASE(C, "a")
+      )
+    })
+  }
+  const FORBID_IDS = CHARSETS.XCHAR.filter(C => !ALLOWED_IDS.includes(C))
+  for (const C of FORBID_IDS) {
+    it(`MUST reject "${C}" following KT`, () => {
+      expect(() => parseAuthority(BASE(C, "a"))).toThrow()
+    })
+  }
+
+  for (const C of CHARSETS.B58) {
+    it(`MUST accept any base58 character: "${C}"`, () => {
+      expect(parseAuthority(BASE("1", C))).toHaveProperty(
+        "contract",
+        KT_BASE("1", C)
+      )
+    })
+  }
+  const FORBID = CHARSETS.XCHAR.filter(C => !CHARSETS.B58.includes(C))
+  for (const C of FORBID) {
+    it(`MUST reject "${C}" as invalid B58 character`, () => {
+      expect(() => parseAuthority(BASE("1", C))).toThrow()
+    })
+  }
+})
 
 describe("parse URI", () => {
   it("should throw if invalid URI scheme", () => {
@@ -56,7 +277,7 @@ describe("parse URI", () => {
               blockchainName: "ethereum",
               blockchainId: "1",
             },
-            path: "/folder/index.html",
+            path: "folder/index.html",
           },
         },
         {
@@ -104,7 +325,7 @@ describe("parse URI", () => {
               blockchainName: "ethereum",
               blockchainId: "1",
             },
-            path: "/folder/index.html",
+            path: "folder/index.html",
             query: "param1=4&param2=heyheyhey",
             fragment: "a-fragment",
           },
@@ -201,7 +422,7 @@ describe("parse URI", () => {
   })
 })
 
-describe("1st order URI parse", () => {
+describe("parseSchema", () => {
   it("should capture 2 groups for valid URIs", () => {
     expect(
       parseSchema(
@@ -263,12 +484,12 @@ describe("1st order URI parse", () => {
 
 describe("parse schema-specific components", () => {
   it("should output expected results among known outputs", () => {
-    const set: { uri: string; output: URISchemaSpecificComponent }[] = [
+    const set: { uri: string; output: URISchemaSpecificParts }[] = [
       {
         uri: "6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840/folder/index.html?param1=4&param2=heyheyhey#a-fragment",
         output: {
           cid: "6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
-          path: "/folder/index.html",
+          path: "folder/index.html",
           query: "param1=4&param2=heyheyhey",
           fragment: "a-fragment",
         },
@@ -277,7 +498,7 @@ describe("parse schema-specific components", () => {
         uri: "6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840/folder/index.html?#a-fragment",
         output: {
           cid: "6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
-          path: "/folder/index.html",
+          path: "folder/index.html",
           query: "",
           fragment: "a-fragment",
         },
@@ -307,7 +528,7 @@ describe("parse schema-specific components", () => {
         uri: "6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840/folder/index.html?param1=4&param2=h%20%A3%a3eyheyhey#a-fragment",
         output: {
           cid: "6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
-          path: "/folder/index.html",
+          path: "folder/index.html",
           query: "param1=4&param2=h%20%A3%a3eyheyhey",
           fragment: "a-fragment",
         },
@@ -320,7 +541,7 @@ describe("parse schema-specific components", () => {
   })
 
   it("should still parse semi-invalid authority segment", () => {
-    const set: { uri: string; output: URISchemaSpecificComponent }[] = [
+    const set: { uri: string; output: URISchemaSpecificParts }[] = [
       {
         uri: "aaaaaaaaaaaaaaaaaa:5/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
         output: {

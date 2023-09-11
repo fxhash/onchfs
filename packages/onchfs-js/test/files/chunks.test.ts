@@ -1,5 +1,5 @@
-import { chunkBytes } from "./chunks"
-import { keccak } from "./utils"
+import { chunkBytes } from "../../src/files/chunks"
+import { keccak } from "../../src/utils"
 
 const u8 = (...arr: number[]) => new Uint8Array(arr)
 

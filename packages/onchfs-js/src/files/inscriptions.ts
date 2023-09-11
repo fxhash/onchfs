@@ -1,27 +1,27 @@
-import { INode } from "./types"
+import { INode } from "@/types"
 
-export type InscriptionChunk = {
+export type InscriptionChunk<DataEncoding = Uint8Array> = {
   type: "chunk"
-  content: Uint8Array
+  content: DataEncoding
 }
 
-export type InscriptionFile = {
+export type InscriptionFile<DataEncoding = Uint8Array> = {
   type: "file"
-  metadata: Uint8Array[]
-  chunks: Uint8Array[]
+  metadata: DataEncoding[]
+  chunks: DataEncoding[]
 }
 
-export type InscriptionDirectory = {
+export type InscriptionDirectory<DataEncoding = Uint8Array> = {
   type: "directory"
   files: {
-    [name: string]: Uint8Array
+    [name: string]: DataEncoding
   }
 }
 
-export type Inscription =
-  | InscriptionChunk
-  | InscriptionFile
-  | InscriptionDirectory
+export type Inscription<DataEncoding = Uint8Array> =
+  | InscriptionChunk<DataEncoding>
+  | InscriptionFile<DataEncoding>
+  | InscriptionDirectory<DataEncoding>
 
 /**
  * Traverse the inverted tree starting by the root, creating inscriptions as

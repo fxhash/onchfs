@@ -1,6 +1,6 @@
-import { DEFAULT_CHUNK_SIZE } from "./config"
-import { FileChunk } from "./types"
-import { BytesCopiedFrom, keccak } from "./utils"
+import { DEFAULT_CHUNK_SIZE } from "@/config"
+import { FileChunk } from "@/types"
+import { BytesCopiedFrom, keccak } from "@/utils"
 
 /**
  * Splits the content of a file into multiple chunks of the same size (except

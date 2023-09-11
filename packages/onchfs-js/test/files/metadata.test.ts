@@ -2,7 +2,7 @@ import {
   validateMetadataValue,
   FORBIDDEN_METADATA_CHARS,
   encodeFileMetadata,
-} from "./metadata"
+} from "../../src/files/metadata"
 
 const hex = (str: string) => new Uint8Array(Buffer.from(str, "hex"))
 

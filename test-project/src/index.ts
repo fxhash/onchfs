@@ -15,7 +15,7 @@ tezos.setProvider({
   ),
 })
 const KT_STORE = "KT1TGsvdj2m3JA3RmMGekRYHnK7Ygkje7Xbt"
-const KT_FILES = "KT1UMRhsB8ZvUD59BHyRuQSUbS4RUdSyJAzF"
+const KT_FILES = "KT1Uktxf9dgGga6DRRNbGEDepxFGTwNtTg4y"
 
 const kts: Record<string, ContractAbstraction<any>> = {}
 const KT = async (add: string) => {

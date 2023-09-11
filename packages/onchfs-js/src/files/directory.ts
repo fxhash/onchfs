@@ -1,5 +1,5 @@
-import { DEFAULT_CHUNK_SIZE, INODE_BYTE_IDENTIFIER } from "./config"
-import { prepareFile } from "./file"
+import { DEFAULT_CHUNK_SIZE, INODE_BYTE_IDENTIFIER } from "../config"
+import { prepareFile } from "@/files/file"
 import {
   DirectoryInode,
   IFile,
@@ -7,8 +7,8 @@ import {
   PrepareDirectoryDir,
   PrepareDirectoryFile,
   PrepareDirectoryNode,
-} from "./types"
-import { concatUint8Arrays, keccak } from "./utils"
+} from "@/types"
+import { concatUint8Arrays, keccak } from "@/utils"
 
 /**
  * Encodes the filename in 7-bit ASCII, where UTF-8 characters are escaped. Will

@@ -51,6 +51,30 @@ export const defaultContractsMap: Record<string, string> = {
 }
 
 /**
+ * Proper charsets tightly following the spec
+ */
+
+const LOW_ALPHA = "a-z"
+const HI_ALPHA = "A-Z"
+const ALPHA = LOW_ALPHA + HI_ALPHA
+const DIGIT = "0-9"
+const SAFE = "$\\-_.+"
+const EXTRA = "!*'(),~"
+const HEX_CHARSET = "A-Fa-f0-9"
+const LOW_RESERVED = ";:@&="
+const RESERVED = LOW_RESERVED + "\\/?#"
+const UNRESERVED = ALPHA + DIGIT + SAFE + EXTRA
+const PCT_ENCODED = `%[${HEX_CHARSET}]{2}`
+const UCHAR = `(?:(?:[${UNRESERVED}])|(?:${PCT_ENCODED}))`
+const XCHAR = `(?:(?:[${UNRESERVED}${RESERVED}])|(?:${PCT_ENCODED}))`
+
+const URI_CHARSET = XCHAR
+const B58_CHARSET = "1-9A-HJ-NP-Za-km-z"
+const AUTHORITY_CHARSET = `${HEX_CHARSET}${B58_CHARSET}.a-z:`
+const SEG_CHARSET = `(?:(?:${UCHAR})|[${LOW_RESERVED}])`
+const QUERY_CHARSET = `(?:${SEG_CHARSET}|\\/|\\?)`
+
+/**
  * Parses an absolute onchfs URI, following its ABNF specification. If any part
  * of the URI is mal-constructed, or if some context is missing to fully
  * resolve it, this function will throw with an error indicating where the
@@ -98,22 +122,13 @@ export function parseURI(uri: string, context?: URIContext): URIComponents {
       cid: schemaSegments.cid.toLowerCase(),
       authority: authority,
     }
-  } catch (err) {
+  } catch (err: any) {
     // catch to prefix low-level error message with generic message
     throw new Error(
       `Error when parsing the URI "${uri}" as a onchfs URI: ${err.message}`
     )
   }
 }
-
-// list of the caracters allowed in URIs
-const URI_CHARSET = "A-Za-z0-9\\-._~:\\/?#\\[\\]@!$&'()*+,;="
-const HEX_CHARSET = "A-Fa-f0-9"
-const B58_CHARSET = "1-9ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-const AUTHORITY_CHARSET = `${HEX_CHARSET}${B58_CHARSET}.a-z:`
-const PCT_ENCODED = `%[${HEX_CHARSET}]{2}`
-const SEG_CHARSET = `(?:[a-zA-Z0-9-._~!$&'()*+,;=:@]|(?:${PCT_ENCODED}))`
-const QUERY_CHARSET = `(?:${SEG_CHARSET}|\\/|\\?)`
 
 /**
  * 1st order URI parsing; checks if the overall URI is valid by looking at the
@@ -124,7 +139,7 @@ const QUERY_CHARSET = `(?:${SEG_CHARSET}|\\/|\\?)`
  * @returns The URI schema-specific part
  */
 export function parseSchema(uri: string): string {
-  const regex = new RegExp(`^(onchfs):\/\/([${URI_CHARSET}]{64,})$`)
+  const regex = new RegExp(`^(onchfs):\/\/(${URI_CHARSET}{64,})$`)
   const results = regex.exec(uri)
 
   // result is null, the regex missed
@@ -141,7 +156,7 @@ export function parseSchema(uri: string): string {
  * The different segments of the URI Schema-Specific Component:
  * [ authority "/" ] cid [path] [ "?" query ] [ "#" fragment ]
  */
-export interface URISchemaSpecificComponent {
+export interface URISchemaSpecificParts {
   cid: string
   authority?: string
   path?: string
@@ -156,17 +171,19 @@ export interface URISchemaSpecificComponent {
  * @param uriPart THe URI Schema-Specific Component
  * @returns An object with the different segments isolated
  */
-export function parseSchemaSpecificPart(uriPart: string) {
+export function parseSchemaSpecificPart(
+  uriPart: string
+): URISchemaSpecificParts {
   const authorityReg = `([${AUTHORITY_CHARSET}]*)\\/`
   const cidReg = `[${HEX_CHARSET}]{64}`
-  const pathReg = `(?:\\/${SEG_CHARSET}{1,}){1,}`
+  const pathReg = `${SEG_CHARSET}*(?:\\/${SEG_CHARSET}*)*`
   const queryReg = `\\?(${QUERY_CHARSET}*)`
   const fragReg = `#(${QUERY_CHARSET}*)`
 
   // isolates each segment of the URI based on their pattern, including
   // cardinality of every segment
   const regex = new RegExp(
-    `^(?:${authorityReg})?(${cidReg})(${pathReg})?(?:${queryReg})?(?:${fragReg})?$`
+    `^(?:${authorityReg})?(${cidReg})(?:\\/(${pathReg}))?(?:${queryReg})?(?:${fragReg})?$`
   )
 
   const res = regex.exec(uriPart)
@@ -247,21 +264,23 @@ export function parseAuthority(
   // initialise the authority object to the given context
   let tmp: Partial<URIAuthority> = { ...context }
 
-  // loop through every blockchain and use its authority-regex to identify
-  // the different parts, potentially
-  let regex: RegExp, res: RegExpExecArray
-  for (const name of blockchainNames) {
-    // generate the blockchain-related regex and parse the authority
-    regex = blockchainAuthorityParsers[name]()
-    res = regex.exec(authority)
-    // no result; move to next blockchain
-    if (!res) continue
-    // results are in slots [1;3] - assign to temp object being parsed
-    const [contract, blockchainName, blockchainId] = res.splice(1, 3)
-    contract && (tmp.contract = contract)
-    blockchainName && (tmp.blockchainName = blockchainName)
-    blockchainId && (tmp.blockchainId = blockchainId)
-    break
+  if (authority) {
+    // loop through every blockchain and use its authority-regex to identify
+    // the different parts, potentially
+    let regex: RegExp, res: RegExpExecArray | null
+    for (const name of blockchainNames) {
+      // generate the blockchain-related regex and parse the authority
+      regex = blockchainAuthorityParsers[name]()
+      res = regex.exec(authority)
+      // no result; move to next blockchain
+      if (!res) continue
+      // results are in slots [1;3] - assign to temp object being parsed
+      const [contract, blockchainName, blockchainId] = res.splice(1, 3)
+      contract && (tmp.contract = contract)
+      blockchainName && (tmp.blockchainName = blockchainName)
+      blockchainId && (tmp.blockchainId = blockchainId)
+      break
+    }
   }
 
   // at this stage, if there isn't a blockchain name, then we can throw as the
@@ -307,3 +326,22 @@ export function parseAuthority(
 
   return tmp as URIAuthority
 }
+
+/**
+ * Serializes an URI for a given context. The more context is associated with
+ * the URI, the more its <authority> segment can be inferred by parsers.
+ * @param components The various URI components
+ * @param context The context in which the URI will be observed
+ * @returns The serialized URI
+ */
+// export function serializeURI(
+//   components: URIComponents,
+//   context?: URIContext
+// ): string {
+//   let uri = "onchfs://"
+//   if (context?.blockchainName)
+// }
+
+// ctx: tezos|ghostnet
+
+// export function normalizeURIComponents(components: URIComponents)
