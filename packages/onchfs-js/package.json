@@ -1,7 +1,6 @@
 {
   "name": "onchfs",
   "version": "1.0.0",
-  "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -20,7 +19,7 @@
     }
   },
   "main": "./dist/index.mjs",
-  "browser": "./dist/index.js", 
+  "browser": "./dist/index.js",
   "files": [
     "dist"
   ],
