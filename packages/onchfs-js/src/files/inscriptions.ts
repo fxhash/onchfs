@@ -9,6 +9,7 @@ export type InscriptionFile<DataEncoding = Uint8Array> = {
   type: "file"
   metadata: DataEncoding[]
   chunks: DataEncoding[]
+  cid: Uint8Array
 }
 
 export type InscriptionDirectory<DataEncoding = Uint8Array> = {
@@ -16,6 +17,7 @@ export type InscriptionDirectory<DataEncoding = Uint8Array> = {
   files: {
     [name: string]: DataEncoding
   }
+  cid: Uint8Array
 }
 
 export type Inscription<DataEncoding = Uint8Array> =
@@ -41,6 +43,7 @@ export function generateInscriptions(root: INode): Inscription[] {
         files: Object.fromEntries(
           Object.keys(node.files).map(name => [name, node.files[name].cid])
         ),
+        cid: node.cid,
       })
       // recursively traverse each inode of the directory
       for (const name in node.files) {
@@ -53,6 +56,7 @@ export function generateInscriptions(root: INode): Inscription[] {
         type: "file",
         chunks: node.chunks.map(chk => chk.hash),
         metadata: node.metadata,
+        cid: node.cid,
       })
       for (const chunk of node.chunks) {
         inscriptions.push({
