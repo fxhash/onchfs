@@ -1,45 +1,67 @@
 import { chunkBytes } from "./files/chunks"
 import {
-  generateInscriptions,
   inscriptionsStorageBytes,
   Inscription,
+  generateInscriptions,
 } from "@/files/inscriptions"
-import {
-  buildDirectoryGraph,
-  computeDirectoryInode,
-  encodeFilename,
-  prepareDirectory,
-} from "@/files/directory"
-import { prepareFile } from "@/files/file"
 import { DEFAULT_CHUNK_SIZE, INODE_BYTE_IDENTIFIER } from "@/config"
 import {
-  FORBIDDEN_METADATA_CHARS,
-  encodeFileMetadata,
-  fileMetadataBytecodes,
-  validateMetadataValue,
-} from "@/files/metadata"
-import {
+  createProxyResolver,
   parseAuthority,
   parseSchema,
   parseSchemaSpecificPart,
   parseURI,
-} from "@/resolve/uri"
-import {
-  InodeNativeFS,
-  ProxyResolutionResponse,
-  createProxyResolver,
-} from "./resolve/proxy"
+} from "@/resolve"
+import type { InodeNativeFS, ProxyResolutionResponse } from "@/resolve"
 import { hexStringToBytes } from "@/utils"
-import * as files from "@/files"
+import {
+  prepareFile,
+  FORBIDDEN_METADATA_CHARS,
+  encodeFileMetadata,
+  fileMetadataBytecodes,
+  validateMetadataValue,
+  buildDirectoryGraph,
+  computeDirectoryInode,
+  encodeFilename,
+  prepareDirectory,
+  decodeFileMetadata,
+} from "@/files"
+
+const files = {
+  prepareFile,
+  prepareDirectory,
+  generateInscriptions,
+  utils: {
+    chunkBytes,
+    directory: {
+      encodeFilename: encodeFilename,
+      computeInode: computeDirectoryInode,
+      computeGraph: buildDirectoryGraph,
+    },
+    inscriptions: {
+      computeStorageBytes: inscriptionsStorageBytes,
+    },
+    metadata: {
+      bytecodes: fileMetadataBytecodes,
+      validateValue: validateMetadataValue,
+      encode: encodeFileMetadata,
+      decode: decodeFileMetadata,
+    },
+  },
+}
 
 /**
  * Wraps the low-level utility functions in a nested object to cleanup the
  * consumer API.
  */
 const utils = {
+  // TODO see what to do, duplicate with files.utils
   chunkBytes,
+  // TODO see what to do, duplicate with files.utils
   encodeFilename,
+  // TODO see what to do, duplicate with files.utils
   computeDirectoryInode,
+  // TODO see what to do, duplicate with files.utils
   buildDirectoryGraph,
   validateMetadataValue,
   encodeFileMetadata,
@@ -53,7 +75,9 @@ const config = {
   INODE_BYTE_IDENTIFIER,
   DEFAULT_CHUNK_SIZE,
   FORBIDDEN_METADATA_CHARS,
+  // TODO see what to do, duplicate with files.utils
   fileMetadataBytecodes,
+  // TODO see what to do, duplicate with files.utils
   inscriptionsStorageBytes,
 }
 
@@ -73,23 +97,7 @@ const resolver = {
   create: createProxyResolver,
 }
 
-export {
-  prepareFile,
-  prepareDirectory,
-  generateInscriptions,
-  utils,
-  config,
-  uri,
-  resolver,
-  files,
-}
-
-export type { Inscription, InodeNativeFS, ProxyResolutionResponse }
-
 const Onchfs = {
-  prepareFile,
-  prepareDirectory,
-  generateInscriptions,
   utils,
   config,
   uri,
@@ -97,6 +105,10 @@ const Onchfs = {
   files,
 }
 export default Onchfs
+
+export { utils, config, uri, resolver, files }
+
+export type { Inscription, InodeNativeFS, ProxyResolutionResponse }
 
 // Used to expose the library to the browser build version
 if (typeof window !== "undefined") {

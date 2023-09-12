@@ -1,4 +1,3 @@
-import * as proxy from "./proxy"
-import * as uri from "./uri"
-
-export { proxy, uri }
+export * from "./errors"
+export * from "./proxy"
+export * from "./uri"
