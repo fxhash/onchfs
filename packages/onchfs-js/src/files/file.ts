@@ -6,6 +6,9 @@ import { lookup as lookupMime } from "mime-types"
 import { chunkBytes } from "./chunks"
 import { concatUint8Arrays, keccak } from "@/utils"
 // import { fileTypeFromBuffer } from "file-type"
+import { CID } from "multiformats/cid"
+
+const cid = CID.create(1, "" as any, "" as any)
 
 /**
  * Computes all the necessary data for the inscription of the file on-chain.
