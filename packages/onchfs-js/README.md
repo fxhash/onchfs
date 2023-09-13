@@ -165,3 +165,106 @@ Maybe divide into 2 APIs, accessible through a single core API ? If needed
 Improvements to the URI
 
 - Before the CID, any number of / is accepted, however the URI should be normalized so that there are no / before the CID
+
+# API Improvements
+
+```ts
+
+/**
+ * OUTPUT MODE
+ * Possibility to instanciate onchfs object instead of using the main one to
+ * get access to some top-level configuration, such as the output data type of
+ * the most common operations.
+ *
+ * * This is optional
+ *
+ * * tbd if good idea, not sure; maybe we just use hex everywhere as backend on
+ *   node can easily work with it, and front-ends won't really manipulate bytes
+ *   (if an application requires to do so they can use onchfs.utils)
+ */
+const onchfs = new Onchfs({
+  outputsEncoding: "uint8array", // other: "hex"
+})
+
+/**
+ * PREPARING FILES
+ * Polymorphic API for preparing files & directories, makes it more
+ * straighforward and clear.
+ */
+
+// preparing file (uint8array, string)
+const file = onchfs.files.prepare(bytes, filename)
+
+// preparing a directory
+const directory = onchfs.files.prepare([
+  { path: "index.html", content: bytes0 },
+  { path: "style.css", content: bytes1 },
+  { path: "lib/main.js", content: bytes3 },
+  { path: "lib/processing.min.js", content: bytes4 },
+])
+
+/**
+ * Generating/optimizing inscriptions
+ */
+
+// in any case the output of the prepare command can be fed into the
+// inscriptions function
+// this will create an optimised list of inscriptions
+const inscriptions = await onchfs.inscriptions.prepare(file, {
+  // if an inode with such CID is found the optimizer will remove the relevant
+  // inscriptions.
+  getInode: async (cid) => {
+    return await blockchainNode.getInode(cid)
+  }
+})
+
+/**
+ * Working with metadata
+ */
+const encoded = onchfs.metadata.encode(...)
+const decoded = onchfs.metadata.decode(...)
+
+
+/**
+ * Writing a proxy
+ */
+
+const resolver = onchfs.resolver.create(
+  // a list of resolver, order matters as if an URI without an authority has to
+  // be resolved, each network will be tested until the resource is found on one
+  [
+    {
+      blockchain: "tezos:mainnet",
+      rpcs: ["https://rpc1.fxhash.xyz", "..."]
+    },
+    {
+      blockchain: "tezos:ghostnet",
+      rpcs: ["https://rpc1.fxhash-dev.xyz", "..."],
+      // optional, the blockchain default one will be used by default
+      contract: "KT..."
+    },
+  ]
+)
+
+app.use(async (req, res, next) => {
+  const response = await resolver.resolve(req.path)
+  // ...
+})
+
+// also possible to create a custom resolver with low-level primitives
+const resolver = onchfs.resolver.custom({
+  getInode: async (cid, path) => {
+    // handle
+  },
+  getFile: async (cid) => {
+    // handle
+  }
+})
+
+/**
+ * URI
+ */
+
+const components = onchfs.uri.parse("onchfs://...")
+
+```
