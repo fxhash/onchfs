@@ -1,0 +1,143 @@
+# File Objects
+
+File Objects are data structures that describe a file system object such as a [file](todo) or a [directory](todo). File Objects are inspired by [UNIX inodes](https://en.wikipedia.org/wiki/Inode). Each File Object stores attributes or Content-Store locations of the object's data.
+
+A File Objects contract provides higher-level instructions over the Content-Store to describe and organise files. The contract keeps a table of File Object, inspired by [inodes on UNIX-stye file systems](https://en.wikipedia.org/wiki/Inode). An inode can be either a **file** or a **directory**, referenced by their 32 bytes hash in the lookup table.
+
+**A file** is an ordered list of Content-Store pointers and some metadata describing the file (type, encoding).
+
+**A directory** is a list of inodes with their assigned names. Contrary to inodes on UNIX-style file systems, directories only point to their children (they cannot reference their parent nor themselves by design).
+
+The File Object contract supports high level instructions to interact with the file system, such as:
+
+- `write_chunk()`
+- `read_chunk()`
+- `create_file()`
+- `read_file()`
+- `create_directory()`
+- `read_directory()`
+- `get_inode_at()`
+
+Each File Object is Content-Addressed in a File Objects table. File & Directory inodes are hashed in a way that ensures that for each file or directory there is a single hash of their content. Such a hash is used to index the inodes in a lookup table for later retrieval. This hash is referred to as `CID (Content IDentifier)`.
+
+CIDs are used as entry points to the file system, as such the File System doesn't provide any way to explore file objects from its root but using object CIDs. In other words, external systems need to keep track of such CIDs in their respective applications.
+
+Following is an illustration of the File Objects lookup table (_note that this isn't how the content of objects is layed down, just a representation for the purpose of the illustration_):
+
+| cid              | Content                                               |
+| ---------------- | ----------------------------------------------------- |
+| `0x7856de7ea...` | `file; pointers:[...]; metadata:...`                  |
+| `0xf7ab6538b...` | `directory; index.html:0x78...; main.js:0xf4...; ...` |
+| `0x45f6f7120...` | `file; pointers:[...]; metadata:...`                  |
+| ...              | ...                                                   |
+
+Read more about the specifics of file & directory objects:
+
+```mdx-code-block
+import DocCardList from '@theme/DocCardList';
+
+<DocCardList />
+```
+
+# Smart Contract specifications
+
+```solidity
+interface ONCHFS_FileObjects {
+  enum InodeType { File, Directory }
+
+  struct File {
+    bytes32[] pointers;
+    bytes metadata;
+  }
+
+  struct Directory {
+    string[] filenames;
+    bytes32[] pointers;
+  }
+
+  struct Inode {
+    InodeType type;
+    // packed content, is either of type File or Directory based on inode type
+    bytes content;
+  }
+
+  struct FullFile {
+    bytes metadata;
+    bytes content;
+  }
+
+  /// @notice Create a file in the system, returning its hash based on the
+  ///  metadata and its content concatenated from the chunks referenced by
+  ///  the pointers.
+  /// @dev MUST throw if pointers point to inexisting data in the
+  ///  Content-Store. MUST compute the hash of a file as defined in the ONCHFS
+  ///  specifications, such that a same file will have the same CID on any
+  ///  system implementing ONCHFS. The file should be stored so that it can be
+  ///  retrieved by its CID.
+  /// @param _pointers a list of Content-Store pointers, which concatenated
+  ///  content define the content of the file
+  /// @param _metadata the metadata to attach to the file
+  /// @return the hash of the file, so called CID
+  function create_file(bytes32[] _pointers, bytes _metadata) external payable returns(bytes32)
+
+  /// @notice Create a directory, defined by a list of inodes addressed by a
+  ///  name inside the directory.
+  /// @dev Each file MUST have a unique name. Files MUST be alphabetically
+  ///  sorted by their name, as order is of importance when hashing.
+  ///  The inodes pointed by the CIDs MUST exist, otherwise throw.
+  ///  Characters of filenames MUST be restricted to the 7-bit ASCII visible
+  ///  character set, among which the following characters are forbidden:
+  ///  :/?#[]@!$&'()*+,;=`
+  ///  Each filename must be unique inside the directory. Directory entries can
+  ///  point to any inode, let it be a file or a directory.
+  ///  Filenames MUST be of at least 1 character.
+  ///  The directory MUST be retrievable by its cid given how directory cids
+  ///  are computed per onchfs specifications.
+  /// @params _filenames list of file names
+  /// @params _cids list of pointers associated to every file name
+  /// @return the hash of the directory
+  function create_directory(string[] _filenames, bytes32[] _cids) external payable returns (bytes32)
+
+  /// @notice Write arbitrary data to the Content Store.
+  /// @dev Proxy to the Content-Store write function
+  /// @param _data data to write
+  /// @return hash of the chunk
+  function write_chunk(bytes _data) external payable returns (bytes32)
+
+  /// @notice Read from the Content-Store at the given location.
+  /// @dev Proxy to the Content-Store read() function
+  /// @param _pointer Pointer to the data
+  /// @return Bytes stored under the pointer
+  function read_chunk(bytes32 _pointer) external view returns (bytes)
+
+  /// @notice Given a pointer to a file, returns its metadata and its content
+  /// @dev Get every chunk referenced by the file pointers from the
+  ///  Content-Store and concatenate the chunks to produce the file content.
+  ///  Metadata is directly returned from the inode.
+  ///  Throws if there isn't any inode under the pointer or if the inode is a
+  ///  file.
+  /// @param _pointer Pointer to the file inode
+  /// @return A structure describing the file content and its data.
+  function read_file(bytes32 _pointer) external view returns (FullFile memory)
+
+  /// @notice Given a pointer to a directory, returns its content (a list of
+  ///  filenames associated with their cid)
+  /// @dev Return the content of the directory as is.
+  ///  Throws if there isn't any inode under the pointer or if the inode is a
+  ///  directory.
+  /// @param _pointer Pointer to the directory inode
+  /// @return The content of the directory.
+  function read_directory(bytes32 _pointer) external view returns (string[], bytes32[])
+
+  /// @notice Given a pointer to an inode, traverses directories using segments
+  ///  of the path, to eventually find the target inode.
+  /// @dev Throws if an inode cannot be traversed with the next segment path
+  ///  (if it's a file or if it doesn't have a file named like the segment).
+  /// @param _pointer Pointer to the inode which is the entry point of the
+  ///  full path (<pointer>/<...path>)
+  /// @param path a list of path segments, where each segment corresponds to
+  ///  a deeper element in the file system tree hierarchy.
+  /// @return The type of the inode targetted by the full path.
+  function get_inode_at(bytes32 _pointer, string[] path) external view returns (InodeType type)
+}
+```

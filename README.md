@@ -133,8 +133,6 @@ The write operation will hash these bytes using keccak256, producing a 32 bytes 
 | ...          | ...                    |
 ```
 
-The ONCHFS was designed to work with the [ethfs](https://github.com/holic/ethfs/blob/main/packages/contracts/src/ContentStore.sol) (commonly used by many applications), as such we could leverage chunks of data which have already been inscribed (as long as we accomodate for chunk sizes & content-encoding).
-
 ```
 TODO
 provide contract interfaces
@@ -520,6 +518,14 @@ upload process
 There is a complete separation of concerns between how files are structured and uploaded, and how they are stored and retrieved in an optimal way by the system.
 
 Moreover, if as an artist you are often reusing and importing a custom (or not widely-used) library, you can simply import it as you used to and the system will always simply reference it in the future.
+
+## Cross-chain compatibility
+
+Because everything is content-addressed, as long as a set of contracts (Content-Store & File Objects) implements the same specifications, a same content will have the same CID on any blockchain.
+
+Moreover, because the system provides a generic way to fetch and explore assets, and provides blockchain references in its URI specification, in theory any asset can reference any other existing asset on any support blockchain.
+
+While in practice the use-cases are limited, it's interesting to note this inter-operability, as it may be relevant to some use-cases. For instance at fxhash, as we support this spec both on tez and eth, we can easily reference commonly-used libraries under the same CID, which facilitate various kind of integrations.
 
 # Known limitations
 
