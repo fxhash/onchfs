@@ -4,7 +4,7 @@ const resolver = require("enhanced-resolve").create.sync({
 })
 
 module.exports = function (request, options) {
-  if (request !== "multiformats/cid") {
+  if (!request.startsWith("multiformats/")) {
     return options.defaultResolver(request, options)
   }
   return resolver(options.basedir, request)
