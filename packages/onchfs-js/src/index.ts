@@ -18,7 +18,6 @@ import {
   prepareFile,
   FORBIDDEN_METADATA_CHARS,
   encodeFileMetadata,
-  fileMetadataBytecodes,
   validateMetadataValue,
   buildDirectoryGraph,
   computeDirectoryInode,
@@ -42,7 +41,6 @@ const files = {
       computeStorageBytes: inscriptionsStorageBytes,
     },
     metadata: {
-      bytecodes: fileMetadataBytecodes,
       validateValue: validateMetadataValue,
       encode: encodeFileMetadata,
       decode: decodeFileMetadata,

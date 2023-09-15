@@ -7,7 +7,7 @@ export type FileInode = {
   type: "file"
   chunks: FileChunk[]
   cid: Uint8Array
-  metadata: Uint8Array[]
+  metadata: Uint8Array
 }
 
 export type DirectoryInode = {

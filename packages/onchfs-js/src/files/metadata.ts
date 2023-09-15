@@ -4,21 +4,11 @@ import {
   compareUint8Arrays,
   concatUint8Arrays,
 } from "@/utils"
+import hpack from "hpack.js"
 
 export interface FileMetadataEntries {
-  "Content-Type"?: string
-  "Content-Encoding"?: "gzip" | "deflate" | "compress"
-}
-
-export type FileMetadataBytecodes = {
-  [entry in keyof FileMetadataEntries]: Uint8Array
-}
-
-// map of the metadata fields with their 2-byte identifier, used to encode
-// on the blockchain with a smaller footprint
-export const fileMetadataBytecodes: FileMetadataBytecodes = {
-  "Content-Type": new Uint8Array([0, 1]),
-  "Content-Encoding": new Uint8Array([0, 2]),
+  "content-type"?: string
+  "content-encoding"?: "gzip" | "deflate" | "compress"
 }
 
 // a list of the forbidden characters in the metadata
@@ -46,6 +36,18 @@ export function validateMetadataValue(value: string): void {
 }
 
 /**
+ * Given a field name, outputs its index in the HPACK static table.
+ * @param name Name of the field to check in the static table
+ */
+function fieldHpackStaticTableIndex(name: string): number | null {
+  const elem = hpack["static-table"].table.find(
+    row => row.name === name.toLowerCase()
+  )
+  if (!elem) return null
+  return hpack["static-table"].table.indexOf(elem)
+}
+
+/**
  * Encodes the metadata of a file following the specifications provided by the
  * onchfs. Each entry is prefixed by 2 bytes encoding the entry type, followed
  * by 7-bit ASCII encoded characters for the string-value associated.
@@ -53,51 +55,54 @@ export function validateMetadataValue(value: string): void {
  * @param metadata The object metadata of a file
  * @returns An array of buffers, each entry representing one metadata property
  */
-export function encodeFileMetadata(
-  metadata: FileMetadataEntries
-): Uint8Array[] {
-  const out: Uint8Array[] = []
-  let value: string
+export function encodeFileMetadata(metadata: FileMetadataEntries): Uint8Array {
+  const comp = hpack.compressor.create({ table: { size: 256 } })
+  let headers: any[] = []
+  let name: string, value: string
   for (const entry in metadata) {
-    if (fileMetadataBytecodes[entry]) {
-      // only process if valid entry
-      value = metadata[entry]
-      try {
-        validateMetadataValue(value)
-      } catch (err: any) {
-        throw new Error(
-          `Error when validating the metadata field "${entry}": ${err.message}`
-        )
-      }
-      out.push(
-        concatUint8Arrays(
-          fileMetadataBytecodes[entry],
-          new TextEncoder().encode(value)
-        )
+    name = entry.toLowerCase()
+    value = metadata[entry]
+    try {
+      validateMetadataValue(value)
+    } catch (err: any) {
+      throw new Error(
+        `Error when validating the metadata field "${entry}": ${err.message}`
       )
     }
+    headers.push({
+      name,
+      value,
+    })
   }
-  out.sort(compareUint8Arrays)
-  return out
+
+  // sort the headers based on their indices in the HPACK static table
+  headers = headers.sort((a, b) => {
+    const iA = fieldHpackStaticTableIndex(a.name)
+    const iB = fieldHpackStaticTableIndex(b.name)
+    if (iA === null && iB !== null) return -1
+    if (iB === null && iA !== null) return 1
+    if (iA === null && iB === null) return 0
+    return iB - iA
+  })
+  comp.write(headers)
+  // ensures proper Uint8array typing at the end of the call
+  return new Uint8Array(comp.read())
 }
 
-export function decodeMetadataEntry(entry: Uint8Array) {
-  const bytecodeEntry = BytesCopiedFrom(entry, 0, 2)
-  for (const [header, bytecode] of Object.entries(fileMetadataBytecodes)) {
-    if (areUint8ArrayEqual(bytecodeEntry, bytecode)) {
-      return [header, new TextDecoder().decode(BytesCopiedFrom(entry, 2))]
-    }
-  }
-  return null
-}
-
-export function decodeFileMetadata(raw: Uint8Array[]) {
+/**
+ * Decodes the HPACKed metadata into a POJO, where keys are the header keys,
+ * and value their respective string value.
+ * @param raw The raw bytes of the hpack-encoded metadata
+ * @returns POJO of metadata header
+ */
+export function decodeFileMetadata(raw: Uint8Array): FileMetadataEntries {
+  const decomp = hpack.decompressor.create({ table: { size: 256 } })
   const metadata: FileMetadataEntries = {}
-  for (const line of raw) {
-    const entry = decodeMetadataEntry(line)
-    if (entry) {
-      metadata[entry[0]] = entry[1]
-    }
+  decomp.write(raw)
+  decomp.execute()
+  let buff: any
+  while ((buff = decomp.read())) {
+    metadata[buff.name] = buff.value
   }
   return metadata
 }

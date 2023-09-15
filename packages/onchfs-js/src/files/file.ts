@@ -6,40 +6,6 @@ import { lookup as lookupMime } from "mime-types"
 import { chunkBytes } from "./chunks"
 import { concatUint8Arrays, keccak } from "@/utils"
 // import { fileTypeFromBuffer } from "file-type"
-import { CID } from "multiformats/cid"
-import { from } from "multiformats/hashes/hasher"
-import { sha3_256 } from "js-sha3"
-
-const m = async () => {
-  const content = new Uint8Array(256)
-    .fill(0)
-    .map(() => Math.floor(Math.random() * 256))
-  const hash = sha3_256.digest(content)
-
-  const hasher = from({
-    name: "keccak-256",
-    code: 0x1b,
-    encode: input => keccak(input),
-  })
-
-  const hash2 = await hasher.digest(content)
-  console.log(hash2)
-
-  const cid = CID.createV1(0x00, hash2)
-  console.log(cid)
-}
-m()
-
-// const cid = CID.create(1, 0x01, {
-//   code: 0x1b,
-//   bytes: hash,
-//   size: 32,
-//   digest: hash,
-// })
-
-// console.log(cid.bytes)
-
-// console.log(CID.inspectBytes(cid.bytes))
 
 /**
  * Computes all the necessary data for the inscription of the file on-chain.
@@ -94,7 +60,7 @@ export async function prepareFile(
   // compute the file unique identifier, following the onchfs specifications:
   // keccak( 0x01 , keccak( content ), keccak( metadata ) )
   const contentHash = keccak(insertionBytes)
-  const metadataHash = keccak(concatUint8Arrays(...metadataEncoded))
+  const metadataHash = keccak(metadataEncoded)
   const cid = keccak(
     concatUint8Arrays(INODE_BYTE_IDENTIFIER.FILE, contentHash, metadataHash)
   )
