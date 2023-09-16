@@ -1,10 +1,10 @@
+import { FileMetadataEntries } from "./../../src/types/metadata"
+import { decodeMetadata } from "../../src/metadata/decode"
+import { encodeMetadata } from "../../src/metadata/encode"
 import {
   validateMetadataValue,
   FORBIDDEN_METADATA_CHARS,
-  encodeFileMetadata,
-  FileMetadataEntries,
-  decodeFileMetadata,
-} from "../../src/files/metadata"
+} from "../../src/metadata/validation"
 
 const hex = (str: string) => new Uint8Array(Buffer.from(str, "hex"))
 
@@ -26,12 +26,12 @@ describe("validate metadata value", () => {
 
 describe("file metadata encoding", () => {
   test("empty file metadata doesn't yield any byte", () => {
-    expect(encodeFileMetadata({})).toEqual(hex(""))
+    expect(encodeMetadata({})).toEqual(hex(""))
   })
 
   test("unknown metadata field is not ignored", () => {
     expect(
-      encodeFileMetadata({
+      encodeMetadata({
         "unknown-value": "Random-Value",
       } as any)
     ).not.toEqual(hex(""))
@@ -39,23 +39,23 @@ describe("file metadata encoding", () => {
 
   test("case is ignored for metadata fields", () => {
     expect(
-      encodeFileMetadata({
+      encodeMetadata({
         "content-type": "0",
         "content-encoding": "gzip",
       })
     ).toEqual(
-      encodeFileMetadata({
+      encodeMetadata({
         "Content-Type": "0",
         "Content-Encoding": "gzip",
       } as any)
     )
     expect(
-      encodeFileMetadata({
+      encodeMetadata({
         "coNtent-tYpe": "0",
         "conTEnt-encODing": "gzip",
       } as any)
     ).toEqual(
-      encodeFileMetadata({
+      encodeMetadata({
         "CONTent-Type": "0",
         "Content-EncOding": "gzip",
       } as any)
@@ -77,21 +77,21 @@ describe("file metadata encoding", () => {
     ]
 
     for (const entry of entries) {
-      expect(decodeFileMetadata(encodeFileMetadata(entry))).toEqual(entry)
+      expect(decodeMetadata(encodeMetadata(entry))).toEqual(entry)
     }
   })
 
   test("fields are encoded in their hpack static table order", () => {
     expect(
       Object.keys(
-        encodeFileMetadata({
+        encodeMetadata({
           "content-type": "any",
           "content-encoding": "gzip",
         })
       )
     ).toEqual(
       Object.keys(
-        encodeFileMetadata({
+        encodeMetadata({
           "content-encoding": "gzip",
           "content-type": "any",
         })
@@ -127,9 +127,7 @@ describe("file metadata encoding", () => {
       { metadata: { "content-encoding": "gzip" }, encoded: "5a839bd9ab" },
     ]
     for (const entry of known) {
-      expect(encodeFileMetadata(entry.metadata as any)).toEqual(
-        hex(entry.encoded)
-      )
+      expect(encodeMetadata(entry.metadata as any)).toEqual(hex(entry.encoded))
     }
   })
 })
