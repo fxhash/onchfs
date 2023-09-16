@@ -43,7 +43,7 @@ async function writeInscription(ins: Inscription) {
     const op = await kt.methodsObject
       .create_file({
         chunk_pointers: ins.chunks.map(buf => uint8hex(buf)),
-        metadata: ins.metadata.map(buf => uint8hex(buf)),
+        metadata: uint8hex(ins.metadata),
       })
       .send()
     await op.confirmation(1)
@@ -72,16 +72,24 @@ async function main() {
 
     if (!fs.lstatSync(root).isDirectory()) {
       const content = fs.readFileSync(path.join("tests", f))
-      const inode = await Onchfs.prepareFile(f, content, 10)
+      const inode = Onchfs.files.prepare(
+        {
+          path: f,
+          content: content,
+        },
+        {
+          chunkSize: 10,
+        }
+      )
       console.log(inode)
-      const inscrs = Onchfs.generateInscriptions(inode)
+      const inscrs = Onchfs.inscriptions.prepare(inode)
     }
     // is durectory
     else {
       dir.files(root, async (err, files) => {
         if (err) throw err
         // for each file, get the content
-        const inode = await Onchfs.prepareDirectory(
+        const inode = await Onchfs.files.prepare(
           files.map(pt => {
             const pts = pt.split("/").slice(2).join("/")
             return {
@@ -89,9 +97,11 @@ async function main() {
               content: fs.readFileSync(pt),
             }
           }),
-          2048
+          {
+            chunkSize: 2048,
+          }
         )
-        const inscrs = Onchfs.generateInscriptions(inode)
+        const inscrs = Onchfs.inscriptions.prepare(inode)
         console.log(inscrs)
         for (const ins of inscrs) {
           await writeInscription(ins)

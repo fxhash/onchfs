@@ -1,5 +1,5 @@
 import { DEFAULT_CHUNK_SIZE } from "@/config"
-import { FileChunk } from "@/types"
+import { FileChunk } from "@/types/files"
 import { BytesCopiedFrom, keccak } from "@/utils"
 
 /**

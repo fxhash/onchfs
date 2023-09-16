@@ -1,5 +1,14 @@
-export * from "./chunks"
-export * from "./directory"
-export * from "./file"
-export * from "./inscriptions"
-export * from "./metadata"
+import { chunkBytes } from "./chunks"
+import {
+  buildDirectoryGraph,
+  computeDirectoryInode,
+  encodeFilename,
+} from "./directory"
+
+export { prepare } from "./prepare"
+export const utils = {
+  chunkBytes,
+  buildDirectoryGraph,
+  computeDirectoryInode,
+  encodeFilename,
+}

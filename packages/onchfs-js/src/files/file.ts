@@ -1,10 +1,11 @@
 import { gzip } from "pako"
 import { DEFAULT_CHUNK_SIZE, INODE_BYTE_IDENTIFIER } from "@/config"
-import { FileMetadataEntries, encodeFileMetadata } from "./metadata"
-import { FileInode } from "@/types"
 import { lookup as lookupMime } from "mime-types"
 import { chunkBytes } from "./chunks"
 import { concatUint8Arrays, keccak } from "@/utils"
+import { FileMetadataEntries } from "@/types/metadata"
+import { encodeMetadata } from "@/metadata/encode"
+import { FileInode, IFile } from "@/types/files"
 // import { fileTypeFromBuffer } from "file-type"
 
 /**
@@ -23,10 +24,10 @@ import { concatUint8Arrays, keccak } from "@/utils"
  * @returns A file node object with all the data necessary for its insertion
  */
 export async function prepareFile(
-  name: string,
-  content: Uint8Array,
+  file: IFile,
   chunkSize: number = DEFAULT_CHUNK_SIZE
 ): Promise<FileInode> {
+  const { path: name, content } = file
   let metadata: FileMetadataEntries = {}
   let insertionBytes = content
   // we use file extension to get mime type
@@ -56,7 +57,7 @@ export async function prepareFile(
   // chunk the file
   const chunks = chunkBytes(insertionBytes, chunkSize)
   // encode the metadata
-  const metadataEncoded = encodeFileMetadata(metadata)
+  const metadataEncoded = encodeMetadata(metadata)
   // compute the file unique identifier, following the onchfs specifications:
   // keccak( 0x01 , keccak( content ), keccak( metadata ) )
   const contentHash = keccak(insertionBytes)

@@ -1,3 +1,3 @@
 export * from "./errors"
 export * from "./proxy"
-export * from "./uri"
+export * from "../uri"

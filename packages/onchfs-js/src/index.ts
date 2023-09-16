@@ -1,112 +1,21 @@
-import { chunkBytes } from "./files/chunks"
-import {
-  inscriptionsStorageBytes,
-  Inscription,
-  generateInscriptions,
-} from "@/files/inscriptions"
-import { DEFAULT_CHUNK_SIZE, INODE_BYTE_IDENTIFIER } from "@/config"
-import {
-  createProxyResolver,
-  parseAuthority,
-  parseSchema,
-  parseSchemaSpecificPart,
-  parseURI,
-} from "@/resolve"
-import type { InodeNativeFS, ProxyResolutionResponse } from "@/resolve"
-import { hexStringToBytes } from "@/utils"
-import {
-  prepareFile,
-  FORBIDDEN_METADATA_CHARS,
-  encodeFileMetadata,
-  validateMetadataValue,
-  buildDirectoryGraph,
-  computeDirectoryInode,
-  encodeFilename,
-  prepareDirectory,
-  decodeFileMetadata,
-} from "@/files"
-
-const files = {
-  prepareFile,
-  prepareDirectory,
-  generateInscriptions,
-  utils: {
-    chunkBytes,
-    directory: {
-      encodeFilename: encodeFilename,
-      computeInode: computeDirectoryInode,
-      computeGraph: buildDirectoryGraph,
-    },
-    inscriptions: {
-      computeStorageBytes: inscriptionsStorageBytes,
-    },
-    metadata: {
-      validateValue: validateMetadataValue,
-      encode: encodeFileMetadata,
-      decode: decodeFileMetadata,
-    },
-  },
-}
-
-/**
- * Wraps the low-level utility functions in a nested object to cleanup the
- * consumer API.
- */
-const utils = {
-  // TODO see what to do, duplicate with files.utils
-  chunkBytes,
-  // TODO see what to do, duplicate with files.utils
-  encodeFilename,
-  // TODO see what to do, duplicate with files.utils
-  computeDirectoryInode,
-  // TODO see what to do, duplicate with files.utils
-  buildDirectoryGraph,
-  validateMetadataValue,
-  encodeFileMetadata,
-  hexStringToBytes,
-}
-
-/**
- * Wraps the config variables in a nested object to cleanup the consumer API.
- */
-const config = {
-  INODE_BYTE_IDENTIFIER,
-  DEFAULT_CHUNK_SIZE,
-  FORBIDDEN_METADATA_CHARS,
-  // TODO see what to do, duplicate with files.utils
-  fileMetadataBytecodes,
-  // TODO see what to do, duplicate with files.utils
-  inscriptionsStorageBytes,
-}
-
-/**
- * Wraps th URI-related variables in a nested object
- */
-const uri = {
-  parse: parseURI,
-  utils: {
-    parseSchema,
-    parseSchemaSpecificPart,
-    parseAuthority,
-  },
-}
-
-const resolver = {
-  create: createProxyResolver,
-}
+import * as files from "@/files"
+import * as inscriptions from "@/inscriptions"
+import * as metadata from "@/metadata"
+import * as resolver from "@/resolver"
+import * as uri from "@/uri"
 
 const Onchfs = {
-  utils,
-  config,
-  uri,
-  resolver,
   files,
+  inscriptions,
+  metadata,
+  resolver,
+  uri,
 }
+
 export default Onchfs
 
-export { utils, config, uri, resolver, files }
-
-export type { Inscription, InodeNativeFS, ProxyResolutionResponse }
+// export all types for dev convenience
+export * from "@/types"
 
 // Used to expose the library to the browser build version
 if (typeof window !== "undefined") {

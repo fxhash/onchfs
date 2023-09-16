@@ -7,7 +7,7 @@ import {
   PrepareDirectoryDir,
   PrepareDirectoryFile,
   PrepareDirectoryNode,
-} from "@/types"
+} from "@/types/files"
 import { concatUint8Arrays, keccak } from "@/utils"
 
 /**
@@ -153,7 +153,13 @@ export async function prepareDirectory(
       // if this node has already been parsed, ignore
       if (parsed.includes(node)) continue
       if (node.type === "file") {
-        node.inode = await prepareFile(node.name, node.content, chunkSize)
+        node.inode = await prepareFile(
+          {
+            path: node.name,
+            content: node.content,
+          },
+          chunkSize
+        )
       } else if (node.type === "directory") {
         // compute the inode associated with the directory
         node.inode = computeDirectoryInode(node)
