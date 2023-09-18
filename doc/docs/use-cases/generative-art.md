@@ -91,6 +91,8 @@ It's interesting to note a few things with this approach:
 - only the JS code has to be pushed by artists; they don't have to upload the HTML template which saves a few bytes—at the cost of lossing access to html and js directives.
 - discrepancies between the dev environment of artists & prod; artists have to use some kind of carefully crafted dev environment that mimics prod behavior
 
+As denoted along many of the points, while the Art Blocks approach works for Art Blocks, it unfortunately doesn't translate well at all in open ecosystems.
+
 ### Scripty & EthFS
 
 While ArtBlocks has pionereed Generative Art code stored on-chain, others have improved upon their solution to address some of what they considered to be issues (or sub-optimal solutions) in the Art Blocks approach. One of these projects is [scripty](https://github.com/intartnft/scripty.sol), a set of contracts/tools to handle on-chain code storage and delivery.
@@ -124,12 +126,16 @@ While previous projects leave an opiniated footprint on how code data is handled
     └── processing.min.js
 ```
 
-`index.html` would import the various components, just like an HTML document would when executed under normal circumstances:
+`index.html` would import the other files, just like any HTML document would when executed under normal circumstances:
 
 ```html
 <html>
   <head>
+    <script src="./libs/fxhash.js"></script>
+    <script src="./libs/colors.js"></script>
+    <script src="./libs/processing.min.js"></script>
     <script src="./main.js"></script>
+    <link ref="stylesheet" href="./style.css" />
   </head>
   <body>
     <!-- ... -->
@@ -137,6 +143,80 @@ While previous projects leave an opiniated footprint on how code data is handled
 </html>
 ```
 
+So locally, artists can work on a version that's fully functionnal and which will be a 1:1 map of what they will be releasing online, no surprises.
+
+When uploading, the same file structure will be uploaded, and onchfs will ensure the content is delivered in its original form, without adding any artifact.
+
 ### Library handling
 
+Onchfs also handles libraries elegantly, and so naturally by its design. Looking at the previous example, and due to the fully deterministic nature of the protocol, a list of inscriptions is precomputed before any data is uploaded on-chain. It will compress files with gzip, chunk files, compute metadata based on file type, and eventually compute the unique content identifier of each file/folder in the project (including the root directory). From this operations, a list of inscriptions is emitted. Ex:
+
+```
+.                             -> 0xb3b3b3d1...
+├── index.html                -> 0xa1b2c3d4...
+├── style.css                 -> 0xaeaeaed2...
+├── main.js                   -> 0xa2a2a2a9...
+└── libs/                     -> 0xd5d5d5d5...
+    ├── fxhash.js             -> 0xc6c6c6c6...
+    ├── colors.js             -> 0xabcdef12...
+    └── processing.min.js     -> 0x01010101...
+
+inscriptions:
++ CHUNK [0] processing.min.js
++ CHUNK [1] processing.min.js
++ CHUNK [2] processing.min.js
++ FILE processing.min.js
++ ...
++ DIRECTORY libs (0xd5d5d5d5...)
+  {
+    "fxhash.js": 0xc6c6c6c6...,
+    "colors.js": 0xabcdef12...,
+    "processing.min.js": 0x01010101...,
+  }
++ ...
++ CHUNK [0] index.html
++ CHUNK [1] index.html
++ FILE index.html (0xa1b2c3d4...)
++ DIRECTORY root (0xb3b3b3d1...)
+```
+
+**Now that's where the magic kicks in 🪄**. Because onchfs is fully deterministic, any file that's a 1:1 copy of another file will have a same CID, due to the properties of the system (it being content-addressed). So, if in the past the platform or another artist has uploaded a same file, it will already exist on onchfs. As such, related inscriptions can just be removed from what's going to be inserted:
+
+```
+inscriptions:
+--CHUNK [0] processing.min.js--
+--CHUNK [1] processing.min.js--
+--CHUNK [2] processing.min.js--
+--FILE processing.min.js--
++ ...
++ DIRECTORY libs (0xd5d5d5d5...)
+  {
+    "fxhash.js": 0xc6c6c6c6...,
+    "colors.js": 0xabcdef12...,
+    "processing.min.js": 0x01010101...,
+  }
++ ...
++ CHUNK [0] index.html
++ CHUNK [1] index.html
++ FILE index.html (0xa1b2c3d4...)
++ DIRECTORY root (0xb3b3b3d1...)
+```
+
+Effectively, in this case, there will just be a `libs` directory which will have a `processing.min.js` file pointing to an already existing resource.
+
+That's the whole beauty behind this system. It provides trustless file handling where arists don't have to care about specifying the right library, they can just use commonly used libraries—as they've always been doing—and the system will take care of optimizing insertions based on whether such libraries are already available on the onchfs.
+
+Moreover, this introduces a paradigm of trustless and fully open resources sharing, as no one has to rely on a centralized platform to provide a library, or a set of personal tools they keep reusing over time; if they upload it once, it will become available forever for free for everyone using onchfs.
+
 ### Optimization for http delivery
+
+As web documents have become the most common medium for Generative Art pieces on blockchains (rightfully so due to the many benefits they bring), it's been as common to serve content using HTTP, the web protocol for accessing resources on the web.
+
+Every file uploaded to onchfs should have some metadata attached to it, specifying:
+
+- `content-type`: the type of the resource, can be `text/html`, `application/javascript`, even `image/png`
+- `content-encoding`: specifies how the data was compressed, by default `gzip` due to its great results for text files as well as its wide support
+
+The [HPACK](https://httpwg.org/specs/rfc7541.html) compression algorithm is used to encode file metadata on-chain, as such metadata will be turned into http headers upon content delivery by onchfs proxies.
+
+Of course, as an artist this whole process is completely hidden away; and that's also why it really shine. It ensures complete creative freedom while providing an optimal framework for storing and delivering the assets.
