@@ -1,84 +1,31 @@
-import { FileMetadataEntries, decodeFileMetadata } from "@/files/metadata"
+import { hexStringToBytes } from "@/utils"
+import { OnchfsProxyResolutionError } from "./errors"
+import { decodeMetadata } from "@/metadata/decode"
 import {
-  URIAuthority,
-  URISchemaSpecificParts,
+  InodeDirectoryNativeFS,
+  InodeFileNativeFS,
+  InodeNativeFS,
+  ProxyHttpHeaders,
+  ProxyResolutionError,
+  ProxyResolutionResponse,
+  ProxyResolutionStatus,
+  ProxyResolutionStatusErrors,
+  ProxyResolutionStatusRedirect,
+  ProxyResolutionStatusSuccess,
+  Resolver,
+} from "@/types/resolver"
+import { URIAuthority, URISchemaSpecificParts } from "@/types/uri"
+import {
   parseAuthority,
   parseSchema,
   parseSchemaSpecificPart,
-} from "./uri"
-import { hexStringToBytes } from "@/utils"
-import { OnchfsProxyResolutionError } from "./errors"
-
-interface InodeFileNativeFS {
-  cid: string
-  metadata: (string | Uint8Array)[]
-  chunkPointers: string[]
-}
-
-interface InodeDirectoryNativeFS {
-  cid: string
-  files: Record<string, string>
-}
-
-export type InodeNativeFS = InodeFileNativeFS | InodeDirectoryNativeFS
-
-export interface Resolver {
-  getInodeAtPath: (
-    cid: string,
-    path: string[],
-    authority?: URIAuthority
-  ) => Promise<InodeNativeFS | null>
-  readFile: (
-    cid: string,
-    chunkPointers: string[],
-    authority?: URIAuthority
-  ) => Promise<string | Uint8Array>
-}
-
-export enum ProxyResolutionStatusErrors {
-  NOT_ACCEPTABLE = 406,
-  NOT_FOUND = 404,
-  BAD_REQUEST = 400,
-  INTERNAL_SERVER_ERROR = 500,
-}
+} from "@/uri/parse"
 
 const ResolutionErrors: Record<ProxyResolutionStatusErrors, string> = {
   [ProxyResolutionStatusErrors.BAD_REQUEST]: "Bad Request",
   [ProxyResolutionStatusErrors.NOT_ACCEPTABLE]: "Resource Cannot be Served",
   [ProxyResolutionStatusErrors.NOT_FOUND]: "Not Found",
   [ProxyResolutionStatusErrors.INTERNAL_SERVER_ERROR]: "Internal Server Error",
-}
-
-export enum ProxyResolutionStatusSuccess {
-  OK = 200,
-}
-
-export enum ProxyResolutionStatusRedirect {
-  PERMANENT = 308,
-}
-
-export type ProxyResolutionStatus =
-  | ProxyResolutionStatusSuccess
-  | ProxyResolutionStatusErrors
-  | ProxyResolutionStatusRedirect
-
-export interface ProxyResolutionError {
-  code: number
-  name: string
-  message?: string
-}
-
-interface ProxyExtraHeaders {
-  Location: string
-}
-
-type ProxyHttpHeaders = FileMetadataEntries | ProxyExtraHeaders
-
-export interface ProxyResolutionResponse {
-  status: ProxyResolutionStatus
-  content: Uint8Array
-  headers: ProxyHttpHeaders
-  error?: ProxyResolutionError
 }
 
 /**
@@ -229,10 +176,11 @@ export function createProxyResolver(resolver: Resolver) {
       let headers: ProxyHttpHeaders
       const rawMetadataInput = (inode as InodeFileNativeFS).metadata
       try {
-        const rawMetadata = rawMetadataInput.map(met =>
-          typeof met === "string" ? hexStringToBytes(met) : met
-        )
-        headers = decodeFileMetadata(rawMetadata)
+        const rawMetadata =
+          typeof rawMetadataInput === "string"
+            ? hexStringToBytes(rawMetadataInput)
+            : rawMetadataInput
+        headers = decodeMetadata(rawMetadata)
       } catch (err) {
         throw new OnchfsProxyResolutionError(
           `An error occurred when parsing the metadata of the file of cid ${
@@ -318,7 +266,7 @@ export function createProxyResolver(resolver: Resolver) {
         ),
         // same with headers
         headers: {
-          "Content-Type": "text/html; charset=utf-8",
+          "content-type": "text/html; charset=utf-8",
         },
         error,
       }

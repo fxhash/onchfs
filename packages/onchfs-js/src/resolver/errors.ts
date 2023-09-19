@@ -1,4 +1,4 @@
-import { ProxyResolutionStatusErrors } from "./proxy"
+import { ProxyResolutionStatusErrors } from "@/types/resolver"
 
 /**
  * Error thrown during the resolution of a relative URI by the proxy.
