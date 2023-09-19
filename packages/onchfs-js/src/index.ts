@@ -3,6 +3,7 @@ import * as inscriptions from "@/inscriptions"
 import * as metadata from "@/metadata"
 import * as resolver from "@/resolver"
 import * as uri from "@/uri"
+import * as utils from "@/utils"
 
 const Onchfs = {
   files,
@@ -10,6 +11,7 @@ const Onchfs = {
   metadata,
   resolver,
   uri,
+  utils,
 }
 
 export default Onchfs
