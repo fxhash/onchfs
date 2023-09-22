@@ -71,9 +71,21 @@ const config = {
         items: [
           {
             type: "docSidebar",
+            sidebarId: "getting-started",
+            position: "left",
+            label: "Getting started"
+          },
+          {
+            type: "docSidebar",
             sidebarId: "concepts",
             position: "left",
             label: "Concepts",
+          },
+          {
+            type: "docSidebar",
+            sidebarId: "libraries",
+            position: "left",
+            label: "Libraries"
           },
           {
             href: "https://github.com/facebook/docusaurus",

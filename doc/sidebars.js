@@ -13,7 +13,7 @@
 
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
-  concepts: [
+  "getting-started": [
     {
       type: "doc",
       label: "Getting started",
@@ -21,65 +21,13 @@ const sidebars = {
     },
     {
       type: "doc",
-      label: "Overview",
-      id: "overview",
+      label: "Motivations",
+      id: "motivations",
     },
     {
-      type: "category",
-      label: "Concepts",
-      collapsed: false,
-      link: {
-        type: "generated-index",
-        title: "Concepts",
-        description: "A quick overview on the various concepts of ONCHFS",
-      },
-      items: [
-        {
-          type: "doc",
-          label: "Hashing",
-          id: "concepts/hashing",
-        },
-        {
-          type: "doc",
-          label: "Content-Store",
-          id: "concepts/content-store",
-        },
-        {
-          type: "category",
-          label: "File Objects",
-          link: {
-            type: "doc",
-            id: "concepts/file-objects/index",
-          },
-          items: [
-            {
-              type: "doc",
-              label: "File",
-              id: "concepts/file-objects/file",
-            },
-            {
-              type: "doc",
-              label: "Directory",
-              id: "concepts/file-objects/directory",
-            },
-          ],
-        },
-        {
-          type: "doc",
-          label: "CIDs",
-          id: "concepts/cids",
-        },
-        {
-          type: "doc",
-          label: "URIs",
-          id: "concepts/uris",
-        },
-        {
-          type: "doc",
-          label: "HTTP Proxy",
-          id: "concepts/http-proxy",
-        },
-      ],
+      type: "doc",
+      label: "Overview",
+      id: "overview",
     },
     {
       type: "category",
@@ -98,27 +46,67 @@ const sidebars = {
       ],
     },
     {
-      type: "category",
+      type: "doc",
       label: "Limitations",
+      id: "limitations",
+    },
+  ],
+
+  "concepts": [
+    {
+      type: "doc",
+      label: "Hashing",
+      id: "concepts/hashing",
+    },
+    {
+      type: "doc",
+      label: "Content-Store",
+      id: "concepts/content-store",
+    },
+    {
+      type: "category",
+      label: "File Objects",
+      link: {
+        type: "doc",
+        id: "concepts/file-objects/index",
+      },
       items: [
         {
           type: "doc",
-          label: "Content availability",
-          id: "limitations/content-availability",
+          label: "File",
+          id: "concepts/file-objects/file",
         },
         {
           type: "doc",
-          label: "Ecosystem integration",
-          id: "limitations/ecosystem-integration",
+          label: "Directory",
+          id: "concepts/file-objects/directory",
         },
       ],
     },
     {
       type: "doc",
-      label: "Motivations",
-      id: "motivations",
+      label: "URIs",
+      id: "concepts/uris",
+    },
+    {
+      type: "doc",
+      label: "HTTP Proxy",
+      id: "concepts/http-proxy",
     },
   ],
+
+  "libraries": [
+    {
+      type: "doc",
+      label: "Common libraries",
+      id: "libraries/overview"
+    },
+    {
+      type: "doc",
+      label: "ONCHFS JS",
+      id: "libraries/onchfs-js/overview",
+    }
+  ]
 }
 
 module.exports = sidebars
