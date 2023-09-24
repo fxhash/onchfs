@@ -52,7 +52,7 @@ const sidebars = {
     },
   ],
 
-  "concepts": [
+  concepts: [
     {
       type: "doc",
       label: "Hashing",
@@ -95,18 +95,83 @@ const sidebars = {
     },
   ],
 
-  "libraries": [
+  libraries: [
     {
       type: "doc",
       label: "Common libraries",
-      id: "libraries/overview"
+      id: "libraries/overview",
     },
     {
-      type: "doc",
+      type: "category",
       label: "ONCHFS JS",
-      id: "libraries/onchfs-js/overview",
-    }
-  ]
+      link: {
+        type: "doc",
+        id: "libraries/onchfs-js/overview",
+      },
+      items: [
+        {
+          type: "category",
+          label: "Common operations",
+          collapsed: false,
+          link: {
+            type: "generated-index",
+            title: "Common operations",
+            description:
+              "Examples showcasing how to implement common use-cases of ONCHFS.",
+          },
+          items: [
+            {
+              type: "doc",
+              label: "Uploading a resource",
+              id: "libraries/onchfs-js/common/uploading",
+            },
+            {
+              type: "doc",
+              label: "Proxy server",
+              id: "libraries/onchfs-js/common/proxy-server",
+            },
+          ],
+        },
+        {
+          type: "category",
+          label: "Modules",
+          collapsed: false,
+          link: {
+            type: "generated-index",
+            title: "Modules",
+            description: "The different modules of the library.",
+          },
+          items: [
+            {
+              type: "doc",
+              label: "Files",
+              id: "libraries/onchfs-js/modules/files",
+            },
+            {
+              type: "doc",
+              label: "Inscriptions",
+              id: "libraries/onchfs-js/modules/inscriptions",
+            },
+            {
+              type: "doc",
+              label: "Metadata",
+              id: "libraries/onchfs-js/modules/metadata",
+            },
+            {
+              type: "doc",
+              label: "Resolver",
+              id: "libraries/onchfs-js/modules/resolver",
+            },
+            {
+              type: "doc",
+              label: "URI",
+              id: "libraries/onchfs-js/modules/uri",
+            },
+          ],
+        },
+      ],
+    },
+  ],
 }
 
 module.exports = sidebars

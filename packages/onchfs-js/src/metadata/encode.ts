@@ -5,11 +5,11 @@ import { FileMetadataEntries } from "@/types/metadata"
 
 /**
  * Encodes the metadata of a file following the specifications provided by the
- * onchfs. Each entry is prefixed by 2 bytes encoding the entry type, followed
- * by 7-bit ASCII encoded characters for the string-value associated.
- * The metadata entries are sorted by their 2 bytes identifier.
+ * onchfs. The HTTP2 HACK compression algorithm is used to compress the JS
+ * object, following the metadata specification of ONCHFS. The metadata is
+ * normalized (lower case, sorted using HPACK static table index).
  * @param metadata The object metadata of a file
- * @returns An array of buffers, each entry representing one metadata property
+ * @returns Bytes of the encoded metadata
  */
 export function encodeMetadata(metadata: FileMetadataEntries): Uint8Array {
   const comp = hpack.compressor.create({ table: { size: 256 } })

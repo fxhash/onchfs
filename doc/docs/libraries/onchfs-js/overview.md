@@ -17,7 +17,7 @@ import onchfs from "onchfs"
 onchfs.files.prepare(...)
 ```
 
-Functions of the package are stateless and groupe into _modules_ based on their utility. Modules are exposed under the root of the package and can be exposed using dot notation (`onchfs.<module_name>.<function>`). Examples:
+Functions of the package are stateless and grouped into _modules_ based on their utility. Modules are exposed under the root of the package and can be exposed using dot notation (`onchfs.<module_name>.<function>`). Examples:
 
 ```ts
 onchfs.files.prepare(...)
@@ -33,6 +33,14 @@ onchfs.files.utils.buildDirectoryGraph(...)
 onchfs.uri.utils.parseAuthority()
 onchfs.uri.utils.parseSchemaSpecificPart(...)
 ```
+
+You can read more about each individual module and the functions they expose on their respective pages:
+
+- [files](./files)
+- [inscriptions](./inscriptions)
+- [metadata](./metadata)
+- [resolver](./resolver)
+- [uri](./uri)
 
 ## Most common operations
 
@@ -61,6 +69,8 @@ const inscriptions = await onchfs.inscriptions.prepare(file, {
 ```
 
 ### Proxy server
+
+*Express js is used here as an example but the resolver is framework-agnostic, as such any server implementation can be used.* 
 
 ```ts
 import onchfs from "onchfs"
