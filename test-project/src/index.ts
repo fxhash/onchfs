@@ -14,8 +14,7 @@ tezos.setProvider({
     "edskSA3GU5AdocLoJtsE2cvrxPAGPZc8RouYhCDaJJ95amCVipeUHiQXiDM37RnKZXed4bobudR8QHmA3cxHNgYDpS5ZcH5XJA"
   ),
 })
-const KT_STORE = "KT1TGsvdj2m3JA3RmMGekRYHnK7Ygkje7Xbt"
-const KT_FILES = "KT1Uktxf9dgGga6DRRNbGEDepxFGTwNtTg4y"
+const KT_FILES = "KT1FA8AGGcJha6S6MqfBUiibwTaYhK8u7s9Q"
 
 const kts: Record<string, ContractAbstraction<any>> = {}
 const KT = async (add: string) => {
@@ -33,10 +32,9 @@ async function writeInscription(ins: Inscription) {
   console.log(`Inscription of ${ins.type}`)
   console.log(ins)
   if (ins.type === "chunk") {
-    const kt = await KT(KT_STORE)
-    const op = kt.methods.default(uint8hex(ins.content))
-    const res = await op.send()
-    await res.confirmation(2)
+    const kt = await KT(KT_FILES)
+    const op = await kt.methods.write_chunk(uint8hex(ins.content)).send()
+    await op.confirmation(1)
   }
   if (ins.type === "file") {
     const kt = await KT(KT_FILES)
