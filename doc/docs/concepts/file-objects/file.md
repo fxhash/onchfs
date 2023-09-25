@@ -44,25 +44,23 @@ The metadata of a file is immutable, to _update_ the metadata of a file, another
 
 ## File metadata
 
-The file metadata is designed to facilitate the delivery of the file content through the http protocol. The metadata is a list of bytes, each item in the list being a field of the metadata. The first 2 bytes of each item are used to encode the type of the field, while following bytes contain the value of the field, encoded in 7-bit ASCII.
+The file metadata is designed to facilitate the delivery of the file content through the http protocol. The metadata takes the form of some HTTP headers encoded with [HPACK, an HTTP2 specification](https://httpwg.org/specs/rfc7541.html) designed for encoding HTTP headers in a compact way.
 
-This is the visual representation of a metadata field bytes ordering:
+On-chain, the compressed bytes are stored, and they are decoded when content needs to be delivered.
+
+For instance, the following HTTP headers:
+
+```json
+{
+  "content-type": "application/javascript",
+  "content-encoding": "gzip"
+}
+```
+
+Will be encoded to:
 
 ```
-  0   1   ...
-+---+---+======================+
-|  ID1  | MVALUE               |
-+---+---+======================+
-
-ID1: Metadata field identifcation prefix
-MVALUE: Metadata field value, encoded in 7-bit ASCII
+0x5f901d75d0620d263d4c741f71a0961ab4ff5a839bd9ab
 ```
 
-This is the list of the supported metadata fields, referenced by their identifying prefix bytes:
-
-| Identifying bytes | Corresponding field type                                                                 |
-| ----------------- | ---------------------------------------------------------------------------------------- |
-| `0x0000`          | [Content-Type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type)   |
-| `0x0001`          | [Content-Encoding](https://www.notion.so/onchfs-d55a59ae7b334502a3a8c6afd3360291?pvs=21) |
-
-For now, these are the only supported metadata fields. These fields will be used for delivering the file data with the right http headers in responses.
+While storage could have been improved, we opted for using a well-known specification, allowing for an easier integration of onchfs over time. It should be known that this solution isn't the most optimal storage-wise, but it's a trade-of worth taking when looking at long-term interoperability.

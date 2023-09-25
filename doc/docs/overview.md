@@ -1,10 +1,19 @@
 # Overview
 
-> ONCHFS is a permissionless unix-like content-addressable file system fully stored on-chain designed to be delivered through the http protocol, with cross-blockchain compatibility in mind.
+ONCHFS is a permissionless unix-like content-addressable file system fully stored on-chain designed to be delivered through the http protocol, with cross-blockchain compatibility in mind.
 
 ## System components
 
-todo
+```mermaid
+erDiagram
+  FILE-OBJECTS ||--|{ CONTENT-STORE: "write/read content-addressed chunks"
+  HTTP-PROXY-RESOLVER }|--o{ FILE-OBJECTS: "resolves"
+  USER }o--|{ HTTP-PROXY-RESOLVER: "request to view content through http"
+  APP-CONTRACT }o--o{ FILE-OBJECTS: "references"
+  CREATORS }o--|{ FILE-OBJECTS: "insert files & directories"
+  CREATORS }o--|{ APP-CONTRACT: "use file objects"
+  USER }o--o{ APP-CONTRACT: "discover content"
+```
 
 ## Core properties
 

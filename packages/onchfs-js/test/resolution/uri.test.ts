@@ -1,14 +1,16 @@
 import {
-  URIComponents,
-  URIContext,
   parseURI,
   parseSchema,
-  URISchemaSpecificParts,
   parseSchemaSpecificPart,
   parseAuthority,
+} from "../../src/uri/parse"
+import {
+  URIComponents,
+  URIContext,
+  URISchemaSpecificParts,
   URIAuthority,
-  defaultContractsMap,
-} from "../../src/resolve/uri"
+} from "../../src/types/uri"
+import { DEFAULT_CONTRACTS } from "../../src/config"
 
 const CHARSETS = (() => {
   const LOW_ALPHA = "abcdefghijklmnopqrstuvwxyz"
@@ -634,7 +636,7 @@ describe("URI authority parser", () => {
         out: {
           blockchainName: "ethereum",
           blockchainId: "5",
-          contract: defaultContractsMap["ethereum:5"],
+          contract: DEFAULT_CONTRACTS["ethereum:5"],
         },
       },
       {
@@ -642,7 +644,7 @@ describe("URI authority parser", () => {
         out: {
           blockchainName: "ethereum",
           blockchainId: "5",
-          contract: defaultContractsMap["ethereum:5"],
+          contract: DEFAULT_CONTRACTS["ethereum:5"],
         },
       },
       {
@@ -650,7 +652,7 @@ describe("URI authority parser", () => {
         out: {
           blockchainName: "ethereum",
           blockchainId: "1",
-          contract: defaultContractsMap["ethereum:1"],
+          contract: DEFAULT_CONTRACTS["ethereum:1"],
         },
       },
       {
@@ -658,7 +660,7 @@ describe("URI authority parser", () => {
         out: {
           blockchainName: "ethereum",
           blockchainId: "1",
-          contract: defaultContractsMap["ethereum:1"],
+          contract: DEFAULT_CONTRACTS["ethereum:1"],
         },
       },
       {
@@ -666,7 +668,7 @@ describe("URI authority parser", () => {
         out: {
           blockchainName: "ethereum",
           blockchainId: "1",
-          contract: defaultContractsMap["ethereum:1"],
+          contract: DEFAULT_CONTRACTS["ethereum:1"],
         },
       },
       {
@@ -674,7 +676,7 @@ describe("URI authority parser", () => {
         out: {
           blockchainName: "tezos",
           blockchainId: "ghostnet",
-          contract: defaultContractsMap["tezos:ghostnet"],
+          contract: DEFAULT_CONTRACTS["tezos:ghostnet"],
         },
       },
       {
@@ -682,7 +684,7 @@ describe("URI authority parser", () => {
         out: {
           blockchainName: "tezos",
           blockchainId: "ghostnet",
-          contract: defaultContractsMap["tezos:ghostnet"],
+          contract: DEFAULT_CONTRACTS["tezos:ghostnet"],
         },
       },
       {
@@ -690,7 +692,7 @@ describe("URI authority parser", () => {
         out: {
           blockchainName: "tezos",
           blockchainId: "mainnet",
-          contract: defaultContractsMap["tezos:mainnet"],
+          contract: DEFAULT_CONTRACTS["tezos:mainnet"],
         },
       },
       {
@@ -698,7 +700,7 @@ describe("URI authority parser", () => {
         out: {
           blockchainName: "tezos",
           blockchainId: "mainnet",
-          contract: defaultContractsMap["tezos:mainnet"],
+          contract: DEFAULT_CONTRACTS["tezos:mainnet"],
         },
       },
       {
@@ -706,7 +708,7 @@ describe("URI authority parser", () => {
         out: {
           blockchainName: "tezos",
           blockchainId: "mainnet",
-          contract: defaultContractsMap["tezos:mainnet"],
+          contract: DEFAULT_CONTRACTS["tezos:mainnet"],
         },
       },
     ]
@@ -725,31 +727,31 @@ describe("URI authority parser", () => {
         out: {
           blockchainName: "ethereum",
           blockchainId: "1",
-          contract: defaultContractsMap["ethereum:1"],
+          contract: DEFAULT_CONTRACTS["ethereum:1"],
         },
       },
       {
         context: {
           blockchainName: "ethereum",
           blockchainId: "1",
-          contract: defaultContractsMap["ethereum:1"],
+          contract: DEFAULT_CONTRACTS["ethereum:1"],
         },
         out: {
           blockchainName: "ethereum",
           blockchainId: "1",
-          contract: defaultContractsMap["ethereum:1"],
+          contract: DEFAULT_CONTRACTS["ethereum:1"],
         },
       },
       {
         context: {
           blockchainName: "ethereum",
           blockchainId: "1",
-          contract: defaultContractsMap["ethereum:1"],
+          contract: DEFAULT_CONTRACTS["ethereum:1"],
         },
         out: {
           blockchainName: "ethereum",
           blockchainId: "1",
-          contract: defaultContractsMap["ethereum:1"],
+          contract: DEFAULT_CONTRACTS["ethereum:1"],
         },
       },
       {
@@ -771,7 +773,7 @@ describe("URI authority parser", () => {
         out: {
           blockchainName: "tezos",
           blockchainId: "mainnet",
-          contract: defaultContractsMap["tezos:mainnet"],
+          contract: DEFAULT_CONTRACTS["tezos:mainnet"],
         },
       },
     ]
