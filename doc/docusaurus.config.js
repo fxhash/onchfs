@@ -1,7 +1,7 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const lightCodeTheme = require("prism-react-renderer/themes/github")
+const lightCodeTheme = require("prism-react-renderer/themes/dracula")
 const darkCodeTheme = require("prism-react-renderer/themes/dracula")
 
 /** @type {import('@docusaurus/types').Config} */
@@ -71,9 +71,21 @@ const config = {
         items: [
           {
             type: "docSidebar",
+            sidebarId: "getting-started",
+            position: "left",
+            label: "Getting started",
+          },
+          {
+            type: "docSidebar",
             sidebarId: "concepts",
             position: "left",
             label: "Concepts",
+          },
+          {
+            type: "docSidebar",
+            sidebarId: "libraries",
+            position: "left",
+            label: "Libraries",
           },
           {
             href: "https://github.com/facebook/docusaurus",

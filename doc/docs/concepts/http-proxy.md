@@ -232,3 +232,4 @@ So the proxy should resolve the document
 - read again
 - more examples
 - nested doc structure
+- security flags

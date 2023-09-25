@@ -165,7 +165,7 @@ inscriptions:
 + CHUNK [0] processing.min.js
 + CHUNK [1] processing.min.js
 + CHUNK [2] processing.min.js
-+ FILE processing.min.js
++ FILE processing.min.js (0x01010101...)
 + ...
 + DIRECTORY libs (0xd5d5d5d5...)
   {
@@ -184,16 +184,16 @@ inscriptions:
 
 ```
 inscriptions:
---CHUNK [0] processing.min.js--
---CHUNK [1] processing.min.js--
---CHUNK [2] processing.min.js--
---FILE processing.min.js--
+--CHUNK [0] processing.min.js--  <-┐
+--CHUNK [1] processing.min.js--  <-┤
+--CHUNK [2] processing.min.js--  <-┼─ removed from inscriptions
+--FILE processing.min.js--       <-┘
 + ...
 + DIRECTORY libs (0xd5d5d5d5...)
   {
     "fxhash.js": 0xc6c6c6c6...,
     "colors.js": 0xabcdef12...,
-    "processing.min.js": 0x01010101...,
+    "processing.min.js": 0x01010101...,  <- points to existing resource
   }
 + ...
 + CHUNK [0] index.html
@@ -220,3 +220,7 @@ Every file uploaded to onchfs should have some metadata attached to it, specifyi
 The [HPACK](https://httpwg.org/specs/rfc7541.html) compression algorithm is used to encode file metadata on-chain, as such metadata will be turned into http headers upon content delivery by onchfs proxies.
 
 Of course, as an artist this whole process is completely hidden away; and that's also why it really shine. It ensures complete creative freedom while providing an optimal framework for storing and delivering the assets.
+
+:::info File metadata
+See [the documentation on file metadata](../concepts/file-objects/file.md#file-metadata)
+:::
