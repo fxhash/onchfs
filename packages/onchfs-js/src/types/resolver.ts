@@ -1,5 +1,18 @@
 import { FileMetadataEntries } from "./metadata"
-import { URIAuthority } from "./uri"
+import { BlockchainNetwork, URIAuthority } from "./uri"
+
+export interface BlockchainResolverCtrl {
+  blockchain: BlockchainNetwork
+  rpcs: string[]
+  contract?: string
+}
+
+export type ResolverContractDecorator = (address?: string) => Resolver
+
+export interface BlockchainResolver {
+  blockchain: BlockchainNetwork
+  resolverWithContract: ResolverContractDecorator
+}
 
 export interface InodeFileNativeFS {
   cid: string

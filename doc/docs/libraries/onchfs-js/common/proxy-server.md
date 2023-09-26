@@ -12,7 +12,7 @@ const app = express()
 const resolver = onchfs.resolver.create([
   {
     blockchain: "tezos:mainnet",
-    rpcs: ["https://rpc1.fxhash.xyz", "..."],
+    rpcs: ["https://rpc1.fxhash.xyz" /* ... */],
   },
   // ... more if desired
 ])
