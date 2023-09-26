@@ -1,6 +1,6 @@
 # HTTP Proxy
 
-onchfs was designed to be easily served through the HTTP protocol, as such we've integrated an HTTP proxy in the system (both in the specifications & the libraries) right from the scratch.
+onchfs was designed to be easily served through the HTTP protocol, as such the system is specified with a proxy http server, for which utilities are implemented to faciliate its implementation.
 
 :::info not required to use onchfs
 It should be known that implementing a proxy, while rather straightforward, isn't mandatory to work with onchfs. This page explains how proxies can (and should) resolve onchfs resources, but eventually existing proxies can be used for most applications.
@@ -21,7 +21,7 @@ erDiagram
 
 The proxy needs access to a node (or indexer) of a blockchain for which it wants to support serving data from. For multi-chain proxies, a list of blockchain "providers" needs to be configured upfront, giving the proxy the ability to query blockchain data when requested.
 
-This is an example of a setup using the onchfs js package:
+This is an example of a setup using the [onchfs js library](/docs/libraries/onchfs-js/overview):
 
 ```js
 const resolver = onchfs.resolver.create([
@@ -210,26 +210,3 @@ Of course, caching is a best (and must!) practice when implementing a onchfs pro
 - in-memory cache (in case previous solution isn't available) will not overflow
 
 Also we recommend setting the [Cache-Control](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control) header appropriately in responses.
-
-## Overall examples
-
----
-
-```
-https://proxy-url.com/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840
-```
-
-**Schema-specific-part**: `6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840`
-
-- **authority**: `none`
-- **cid**: `6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840`
-- **search**: `none`
-
-So the proxy should resolve the document
-
-# TODO
-
-- read again
-- more examples
-- nested doc structure
-- security flags
