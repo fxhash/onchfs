@@ -7,6 +7,7 @@ export type InscriptionFile<DataEncoding = Uint8Array> = {
   type: "file"
   metadata: DataEncoding
   chunks: DataEncoding[]
+  cid: Uint8Array
 }
 
 export type InscriptionDirectory<DataEncoding = Uint8Array> = {
@@ -14,6 +15,7 @@ export type InscriptionDirectory<DataEncoding = Uint8Array> = {
   files: {
     [name: string]: DataEncoding
   }
+  cid: Uint8Array
 }
 
 export type Inscription<DataEncoding = Uint8Array> =

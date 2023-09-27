@@ -19,6 +19,7 @@ export function prepareInscriptions(root: INode): Inscription[] {
         files: Object.fromEntries(
           Object.keys(node.files).map(name => [name, node.files[name].cid])
         ),
+        cid: node.cid,
       })
       // recursively traverse each inode of the directory
       for (const name in node.files) {
@@ -31,6 +32,7 @@ export function prepareInscriptions(root: INode): Inscription[] {
         type: "file",
         chunks: node.chunks.map(chk => chk.hash),
         metadata: node.metadata,
+        cid: node.cid,
       })
       for (const chunk of node.chunks) {
         inscriptions.push({

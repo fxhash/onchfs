@@ -16,7 +16,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsup",
-    "build:watch": "tsup --watch",
+    "dev": "tsup --watch",
     "test": "jest"
   },
   "dependencies": {
