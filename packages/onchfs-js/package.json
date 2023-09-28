@@ -17,10 +17,11 @@
   "license": "MIT",
   "scripts": {
     "build": "tsup",
-    "build:watch": "tsup --watch",
+    "dev": "tsup --watch",
     "test": "jest"
   },
   "dependencies": {
+    "@taquito/taquito": "17.3.1",
     "file-type": "18.5.0",
     "hpack.js": "2.1.6",
     "js-sha3": "0.9.1",

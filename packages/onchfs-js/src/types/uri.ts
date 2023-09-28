@@ -7,6 +7,17 @@ export const blockchainNames = ["tezos", "ethereum"] as const
 export type BlockchainNames = (typeof blockchainNames)[number]
 
 /**
+ * Each blockchain has a list of supported networks
+ */
+export const blockchainNetworks = [
+  "tezos:mainnet",
+  "tezos:ghostnet",
+  "ethereum:1",
+  "ethereum:5",
+] as const
+export type BlockchainNetwork = (typeof blockchainNetworks)[number]
+
+/**
  * The URI Authority defines the "host" of an asset, in this case a combination
  * of a blockchain (represented by string indentifier & chain ID) & a contract
  * on such blockchain compliant to the onchfs specifications.

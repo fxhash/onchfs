@@ -1,4 +1,3 @@
-import { TezosToolkit } from "@taquito/taquito"
 import express from "express"
 import Onchfs, { ProxyResolutionResponse } from "onchfs"
 
@@ -14,54 +13,14 @@ function cache(key: string, response: ProxyResolutionResponse) {
 }
 
 async function main() {
-  // setup a Tezos client for interacting more easily with the blockchain
-  const Tezos = new TezosToolkit("https://ghostnet.ecadinfra.com")
-  const KT = await Tezos.contract.at("KT1Uktxf9dgGga6DRRNbGEDepxFGTwNtTg4y")
-
   // Create the resolver, it will be responsible for implementing 2 operations
   // executed during the resolution flow
-  const resolve = Onchfs.resolver.create({
-    // given a (cid, path), retrieve the inode at the given location (if the
-    // contract implements the ONCHFS spec, the get_inode_at entry point can
-    // be used)
-    getInodeAtPath: async (cid, path) => {
-      const out = await KT.contractViews
-        .get_inode_at({
-          cid,
-          path,
-        })
-        .executeView({
-          viewCaller: "KT1Uktxf9dgGga6DRRNbGEDepxFGTwNtTg4y",
-        })
-
-      // if the contract has answered with a directory
-      if (out.inode.directory) {
-        const files: Record<string, string> = {}
-        for (const [name, pointer] of out.inode.directory.entries()) {
-          files[name] = pointer
-        }
-        return {
-          cid: out.cid,
-          files,
-        }
-      } else {
-        // the contract has answered with a file
-        return {
-          cid: out.cid,
-          chunkPointers: out.inode.file.chunk_pointers,
-          metadata: out.inode.file.metadata,
-        }
-      }
+  const resolve = Onchfs.resolver.create([
+    {
+      blockchain: "tezos:ghostnet",
+      rpcs: ["https://ghostnet.ecadinfra.com"],
     },
-
-    // given a file CID, get the content of the file
-    readFile: async cid => {
-      const res = await KT.contractViews.read_file(cid).executeView({
-        viewCaller: "KT1Uktxf9dgGga6DRRNbGEDepxFGTwNtTg4y",
-      })
-      return Onchfs.utils.hexStringToBytes(res.content)
-    },
-  })
+  ])
 
   // setup the express server
   const app = express()
@@ -78,7 +37,7 @@ async function main() {
         .status(response.status)
         .send(Buffer.from(response.content))
     } else {
-      next()
+      return next()
     }
   })
 
