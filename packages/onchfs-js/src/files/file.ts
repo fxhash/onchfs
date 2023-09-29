@@ -23,10 +23,10 @@ import { FileInode, IFile } from "@/types/files"
  * @param chunkSize Max number of bytes for chunking the file content
  * @returns A file node object with all the data necessary for its insertion
  */
-export async function prepareFile(
+export function prepareFile(
   file: IFile,
   chunkSize: number = DEFAULT_CHUNK_SIZE
-): Promise<FileInode> {
+): FileInode {
   const { path: name, content } = file
   let metadata: FileMetadataEntries = {}
   let insertionBytes = content
