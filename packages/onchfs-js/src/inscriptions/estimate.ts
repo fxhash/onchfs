@@ -5,7 +5,7 @@ import { Inscription } from "@/types/inscriptions"
  * @param ins Inscription for which storage space should be computed
  * @returns The number of storage bytes the inscription will take
  */
-function inscriptionBytesLength(ins: Inscription) {
+export function inscriptionBytesLength(ins: Inscription) {
   switch (ins.type) {
     case "chunk":
       // chunk to write + chunk key

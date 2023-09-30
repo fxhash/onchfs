@@ -12,10 +12,10 @@ const defaultPrepareOptions: Required<OnchfsPrepareOptions> = {
   chunkSize: DEFAULT_CHUNK_SIZE,
 }
 
-export function prepare(file: IFile, options: OnchfsPrepareOptions): FileInode
+export function prepare(file: IFile, options?: OnchfsPrepareOptions): FileInode
 export function prepare(
   files: IFile[],
-  options: OnchfsPrepareOptions
+  options?: OnchfsPrepareOptions
 ): DirectoryInode
 
 /**
@@ -30,11 +30,11 @@ export function prepare(
  */
 export function prepare(
   files: IFile | IFile[],
-  options: OnchfsPrepareOptions
+  options?: OnchfsPrepareOptions
 ): unknown {
   const _options = {
     ...defaultPrepareOptions,
-    ...options,
+    ...(options || {}),
   }
   if (Array.isArray(files)) {
     return prepareDirectory(files, _options.chunkSize)

@@ -138,10 +138,10 @@ export function buildDirectoryGraph(
  * @returns A root directory inode from which the whole directory tree can be
  * traversed, as it's going to be inscribed.
  */
-export async function prepareDirectory(
+export function prepareDirectory(
   files: IFile[],
   chunkSize: number = DEFAULT_CHUNK_SIZE
-): Promise<DirectoryInode> {
+): DirectoryInode {
   const [graph, leaves] = buildDirectoryGraph(files)
 
   const parsed: PrepareDirectoryNode[] = []
@@ -153,7 +153,7 @@ export async function prepareDirectory(
       // if this node has already been parsed, ignore
       if (parsed.includes(node)) continue
       if (node.type === "file") {
-        node.inode = await prepareFile(
+        node.inode = prepareFile(
           {
             path: node.name,
             content: node.content,
