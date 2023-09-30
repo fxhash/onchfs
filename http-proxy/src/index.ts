@@ -20,6 +20,16 @@ async function main() {
       blockchain: "tezos:ghostnet",
       rpcs: ["https://ghostnet.ecadinfra.com"],
     },
+    {
+      blockchain: "tezos:mainnet",
+      rpcs: [
+        "https://mainnet.ecadinfra.com",
+        "https://mainnet.smartpy.io",
+        "https://rpc.tzbeta.net/",
+        "https://mainnet.tezos.marigold.dev/",
+        "https://eu01-node.teztools.net/",
+      ],
+    },
   ])
 
   // setup the express server

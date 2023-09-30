@@ -26,7 +26,6 @@
     "hpack.js": "2.1.6",
     "js-sha3": "0.9.1",
     "mime-types": "2.1.35",
-    "multiformats": "12.1.1",
     "pako": "2.1.0"
   },
   "devDependencies": {
