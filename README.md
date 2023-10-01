@@ -4,6 +4,10 @@ The On-Chain for Http File System (onchfs) is a permissionless unix-like content
 
 The onchfs is inspired by [ethfs](https://github.com/holic/ethfs), [ipfs](https://ipfs.tech/), [bitcoin ordinals recursive inscriptions](https://docs.ordinals.com/inscriptions.html), [Unix file systems](https://en.wikipedia.org/wiki/Unix_filesystem), and aims at providing a general framework for working with files stored on-chain, following modern standards & practices.
 
+# Useful links
+
+- [onchfs documentation](https://onchfs.com) — a digestable documentation covering the core concepts behind onchfs, as well as package-specific documentations (onchfs js library)
+
 # This repository
 
 This repository holds many resources to facilitate learning about or implementing the ONCHFS. To go straight into implementing an application with the file system, check out the [onchfs js package](./packages/onchfs-js/)
@@ -15,7 +19,7 @@ repo
 │   └── next-js-upload — front-end example to upload
 ├── packages
 │   └── onchfs-js — cross-env js package go-to package
-└── docs
+└── doc — docusaurus front-end documentation
 ```
 
 # Motivations
@@ -187,14 +191,26 @@ As a consequence, a same file data with the same metadata will always have the s
 
 ### File metadata
 
-The file metadata is designed to facilitate the delivery of the file content through the http protocol. The metadata is a list of bytes, each item in the list being a field of the metadata. The first 2 bytes of each item are used to encode the type of the field, while following bytes contain the value of the field, encoded in 7-bit ASCII.
+The file metadata is designed to facilitate the delivery of the file content through the http protocol. The metadata takes the form of some HTTP headers encoded with [HPACK, an HTTP2 specification](https://httpwg.org/specs/rfc7541.html) designed for encoding HTTP headers in a compact way.
 
-This is the list of the supported metadata fields, referenced by their identifying prefix bytes:
+On-chain, the compressed bytes are stored, and they are decoded when content needs to be delivered.
 
-- `0x0000`: [Content-Type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type)
-- `0x0001`: [Content-Encoding](https://www.notion.so/onchfs-d55a59ae7b334502a3a8c6afd3360291?pvs=21)
+For instance, the following HTTP headers:
 
-For now, these are the only supported metadata fields. These fields will be used for delivering the file data with the right http headers in the responses.
+```json
+{
+  "content-type": "application/javascript",
+  "content-encoding": "gzip"
+}
+```
+
+Will be encoded to:
+
+```
+0x5f901d75d0620d263d4c741f71a0961ab4ff5a839bd9ab
+```
+
+While storage could have been improved, we opted for using a well-known specification, allowing for an easier integration of onchfs over time. It should be known that this solution isn't the most optimal storage-wise, but it's a trade-of worth taking when looking at long-term interoperability.
 
 ## Directory inode
 
