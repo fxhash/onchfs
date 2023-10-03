@@ -36,11 +36,11 @@ onchfs.uri.utils.parseSchemaSpecificPart(...)
 
 You can read more about each individual module and the functions they expose on their respective pages:
 
-- [files](./files)
-- [inscriptions](./inscriptions)
-- [metadata](./metadata)
-- [resolver](./resolver)
-- [uri](./uri)
+- [files](./modules/files)
+- [inscriptions](./modules/inscriptions)
+- [metadata](./modules/metadata)
+- [resolver](./modules/resolver)
+- [uri](./modules/uri)
 
 ## Most common operations
 

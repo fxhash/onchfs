@@ -1,6 +1,6 @@
 # File Objects
 
-File Objects are data structures that describe a file system object such as a [file](todo) or a [directory](todo). File Objects are inspired by [UNIX inodes](https://en.wikipedia.org/wiki/Inode). Each File Object stores attributes or Content-Store locations of the object's data.
+File Objects are data structures that describe a file system object such as a [file](./file) or a [directory](./directory). File Objects are inspired by [UNIX inodes](https://en.wikipedia.org/wiki/Inode). Each File Object stores attributes or Content-Store locations of the object's data.
 
 A File Objects contract provides higher-level instructions over the Content-Store to describe and organise files. The contract keeps a table of File Object, inspired by [inodes on UNIX-stye file systems](https://en.wikipedia.org/wiki/Inode). An inode can be either a **file** or a **directory**, referenced by their 32 bytes hash in the lookup table.
 
