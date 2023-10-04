@@ -43,9 +43,40 @@ const ResolutionErrors: Record<ProxyResolutionStatusErrors, string> = {
  * implementation of ONCHFS resolution using the declarative inputs which
  * provide endpoints for the fetch operations.
  *
+ * @example
+ *
+ * ```ts
+ * import onchfs from "onchfs"
+ * import express from "express"
+ *
+ * const app = express()
+ *
+ * // setup resolver
+ * const resolver = onchfs.resolver.create([
+ *   {
+ *     blockchain: "tezos:mainnet",
+ *     rpcs: ["https://rpc1.fxhash.xyz", ...],
+ *   },
+ *   // ... more if desired
+ * ])
+ *
+ * app.use(async (req, res, next) => {
+ *   // resolve a URI
+ *   const response = await resolver.resolve(req.path)
+ *   // response can be used as is for http
+ *   return res
+ *     .header(response.headers)
+ *     .status(response.status)
+ *     .send(Buffer.from(response.content))
+ * })
+ *
+ * app.listen(4000)
+ * ```
+ *
  * @param controllers A list of declarative objects specifying some data
  * required for the resolution of resources on various blockchains (RPCs,
  * optionnally contract addresses)
+ *
  * @returns A resolver which can be called on an URI to get data from ONCHFS
  */
 export function createProxyResolver(controllers: BlockchainResolverCtrl[]) {

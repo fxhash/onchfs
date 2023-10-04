@@ -7,7 +7,33 @@ import { Inscription } from "@/types/inscriptions"
  * reversed to ensure they are written to the store in the right order (as the
  * onchfs will reject inodes pointing to inexisting resources; let it be file
  * chunks or directory files).
+ *
+ * @example
+ *
+ * ```ts
+ * // first prepare the file(s)
+ * const F = onchfs.files.prepare({
+ *   content: [],
+ *   path: "index.html"
+ * })
+ * // ot
+ * const F = onchfs.files.prepare([
+ *   {
+ *     content: [],
+ *     path: "index.htmml"
+ *   },
+ *   {
+ *     content: [],
+ *     path: "lib/main.js"
+ *   }
+ * ])
+ *
+ * // the prepare the inscriptions
+ * const inscriptions = onchfs.inscriptions.prepare(F) // file or directory
+ * ```
+ *
  * @param root The root of the tree, can be either the root directory or a file
+ *
  * @returns A list of inscription objects ready to be turned into operations
  */
 export function prepareInscriptions(root: INode): Inscription[] {
