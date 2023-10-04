@@ -23,7 +23,7 @@ export function encodeFilename(name: string): string {
 }
 
 /**
- * Computed the different component of a directory inode based on the
+ * Compute the different properties of a directory inode based on the
  * preparation object.
  * @param dir A directory being prepared
  * @returns A directory inode, from which insertions can be derived
@@ -55,7 +55,10 @@ export function computeDirectoryInode(
  * Builds a graph from a list of files (relative path from the directory root,
  * content) in a folder structure as it's going to be inscribed on the file
  * system.
- * @param files A list of the files (& their content), where paths are specified with separating "/"
+ *
+ * @param files A list of the files (& their content), where paths are specified
+ * with separating "/"
+ *
  * @returns A tuple of (graph, leaves), where graph is a structure ready to be
  * parsed for insertion & leaves the leaves of the graph, entry points for
  * parsing the graph in reverse.

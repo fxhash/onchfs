@@ -33,12 +33,6 @@ const decoded = onchfs.metadata.decode(encodedMetadataBytes)
 As `encode()` is normalizing the input, `decode(encode(A)) != A`, but `decode(encode(A)) == normalize(A)`
 :::
 
-## Utils
-
-### Validate Metadata Value
-
-TODO
-
 ## Interfaces
 
 ```ts

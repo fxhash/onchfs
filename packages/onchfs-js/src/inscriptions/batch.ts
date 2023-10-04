@@ -2,13 +2,13 @@ import { Inscription } from "@/types/inscriptions"
 import { inscriptionBytesLength } from "./estimate"
 
 /**
- * Given a list of inscriptions, which creates batches of inscriptions where
- * each batch is under the batch size limit, using a safety delta of 10% of
- * batch size. Each batch in the output will be under the given batch size,
- * ensuring writting all the inscriptions in the batch will not overflow the
- * batch size.
+ * Given a list of inscriptions, creates batches of inscriptions where each
+ * batch is under the batch size limit, using a safety delta of 10% of batch
+ * size. Each batch in the output will be under the given batch size, ensuring
+ * writting all the inscriptions in the batch will not overflow the batch size.
  *
- * @example Let's consider this list of inscriptions, where each inscription
+ * @example
+ * Let's consider this list of inscriptions, where each inscription
  * is defined by its size in bytes:
  * [500, 200, 2000, 1500, 200, 5000, 3000, 40]
  * Given a batch size of 6000, this function will batch the inscriptions as

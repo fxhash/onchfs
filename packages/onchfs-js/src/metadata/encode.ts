@@ -8,7 +8,19 @@ import { FileMetadataEntries } from "@/types/metadata"
  * onchfs. The HTTP2 HACK compression algorithm is used to compress the JS
  * object, following the metadata specification of ONCHFS. The metadata is
  * normalized (lower case, sorted using HPACK static table index).
+ *
+ * @example
+ *
+ * ```ts
+ * const metadata = {
+ *   "content-type": "text/html",
+ *   "content-encoding": "gzip"
+ * }
+ * const encoded = onchfs.metadata.encode(metadata)
+ * ```
+ *
  * @param metadata The object metadata of a file
+ *
  * @returns Bytes of the encoded metadata
  */
 export function encodeMetadata(metadata: FileMetadataEntries): Uint8Array {

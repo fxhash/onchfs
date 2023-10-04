@@ -36,9 +36,11 @@ export function inscriptionBytesLength(ins: Inscription) {
  * some chunks/files/directories may already have been written to the storage.
  * Note: this doesn't include eventual gas execution fees, which are blockchain-
  * dependant.
+ *
  * @param inscriptions Inscriptions for which storage bytes will be computed
+ *
  * @returns Number of bytes the inscriptions may take on the storage
  */
-export function inscriptionsBytesLength(inscriptions: Inscription[]) {
+export function inscriptionsBytesLength(inscriptions: Inscription[]): number {
   return inscriptions.reduce((acc, ins) => inscriptionBytesLength(ins) + acc, 0)
 }
