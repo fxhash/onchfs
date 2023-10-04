@@ -15,7 +15,9 @@ import { concatUint8Arrays, keccak } from "@/utils"
  * also escape any character that are not supported in the URI specification, as
  * these will be fetched using a similar pattern by browsers. The native
  * `encodeURIComponent()` method will be used for such a purpose.
+ *
  * @param name Filename to encode
+ *
  * @returns Filename encoded in 7-bit ASCII
  */
 export function encodeFilename(name: string): string {
@@ -25,7 +27,9 @@ export function encodeFilename(name: string): string {
 /**
  * Compute the different properties of a directory inode based on the
  * preparation object.
+ *
  * @param dir A directory being prepared
+ *
  * @returns A directory inode, from which insertions can be derived
  */
 export function computeDirectoryInode(
