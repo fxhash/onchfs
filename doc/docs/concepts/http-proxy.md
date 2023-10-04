@@ -116,7 +116,7 @@ The following steps are used to locate a content given its authority, cid and pa
       - otherwise throw; resource can't be served
     - if nothing is found, throw 404 (except if iterating through the blockchains)
 
-Due to the nature of the specifications of these steps being clear for any onchfs resource, the `onchfs js` library can be used quite simply using the built-in resolver:
+Because onchfs resource resolution is clearly specified, libraries can be used for abstracting these repetitive steps. For instance, this is an implementation of an http proxy using the [onchfs js library](/docs/libraries/onchfs-js/overview):
 
 ```js
 // example using express for handling http requests
