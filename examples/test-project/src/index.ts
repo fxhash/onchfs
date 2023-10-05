@@ -1,9 +1,14 @@
+import axios from "axios"
 import Onchfs, { Inscription } from "onchfs"
 import fs from "fs"
 import path from "path"
 import dir from "node-dir"
 import { TezosToolkit, ContractAbstraction } from "@taquito/taquito"
 import { InMemorySigner } from "@taquito/signer"
+
+async function sleep(time: number) {
+  return new Promise(resolve => setTimeout(resolve, time))
+}
 
 // test with any folder/file at the root of the tests folder
 const files = fs.readdirSync("./tests")
@@ -14,7 +19,9 @@ tezos.setProvider({
     "edskSA3GU5AdocLoJtsE2cvrxPAGPZc8RouYhCDaJJ95amCVipeUHiQXiDM37RnKZXed4bobudR8QHmA3cxHNgYDpS5ZcH5XJA"
   ),
 })
+const KT_CHUNKS = "KT1TGsvdj2m3JA3RmMGekRYHnK7Ygkje7Xbt"
 const KT_FILES = "KT1FA8AGGcJha6S6MqfBUiibwTaYhK8u7s9Q"
+const TZKT = "https://api.ghostnet.tzkt.io/v1"
 
 const kts: Record<string, ContractAbstraction<any>> = {}
 const KT = async (add: string) => {
@@ -29,8 +36,6 @@ function uint8hex(uint8: Uint8Array): string {
 }
 
 async function writeInscription(ins: Inscription) {
-  console.log(`Inscription of ${ins.type}`)
-  console.log(ins)
   if (ins.type === "chunk") {
     const kt = await KT(KT_FILES)
     const op = await kt.methods.write_chunk(uint8hex(ins.content)).send()
@@ -70,16 +75,10 @@ async function main() {
 
     if (!fs.lstatSync(root).isDirectory()) {
       const content = fs.readFileSync(path.join("tests", f))
-      const inode = Onchfs.files.prepare(
-        {
-          path: f,
-          content: content,
-        },
-        {
-          chunkSize: 10,
-        }
-      )
-      console.log(inode)
+      const inode = Onchfs.files.prepare({
+        path: f,
+        content: content,
+      })
       const inscrs = Onchfs.inscriptions.prepare(inode)
     }
     // is durectory
@@ -87,7 +86,7 @@ async function main() {
       dir.files(root, async (err, files) => {
         if (err) throw err
         // for each file, get the content
-        const inode = await Onchfs.files.prepare(
+        const inode = Onchfs.files.prepare(
           files.map(pt => {
             const pts = pt.split("/").slice(2).join("/")
             return {
@@ -99,11 +98,22 @@ async function main() {
             chunkSize: 2048,
           }
         )
-        const inscrs = Onchfs.inscriptions.prepare(inode)
+        const inscrs = await Onchfs.inscriptions.prepare(inode, {
+          async inodeExists(cid) {
+            const res = await axios.get(
+              `${TZKT}/contracts/${KT_FILES}/bigmaps/inodes/keys/${cid}`
+            )
+            return res.status === 200
+          },
+          async chunkExists(cid) {
+            const res = await axios.get(`${TZKT}/bigmaps/354463/keys/${cid}`)
+            return res.status === 200
+          },
+        })
         console.log(inscrs)
-        for (const ins of inscrs) {
-          await writeInscription(ins)
-        }
+        // for (const ins of inscrs) {
+        //   await writeInscription(ins)
+        // }
       })
     }
   }

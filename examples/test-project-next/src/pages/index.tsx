@@ -93,7 +93,7 @@ export default function Home() {
         const op = await kt.methodsObject
           .create_file({
             chunk_pointers: ins.chunks.map(buf => uint8hex(buf)),
-            metadata: ins.metadata.map(buf => uint8hex(buf)),
+            metadata: uint8hex(ins.metadata),
           })
           .send()
         await op.confirmation(1)
@@ -110,16 +110,15 @@ export default function Home() {
     }
 
     const enc = new TextEncoder()
-    const inode = await Onchfs.prepareDirectory(
+    const inode = Onchfs.files.prepare(
       files.map(pt => {
         return {
           path: pt.name,
           content: enc.encode(pt.content),
         }
-      }),
-      2048
+      })
     )
-    const inscrs = Onchfs.generateInscriptions(inode)
+    const inscrs = Onchfs.inscriptions.prepare(inode)
     console.log(inscrs)
     for (const ins of inscrs) {
       await writeInscription(ins)
