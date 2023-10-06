@@ -17,11 +17,13 @@ async function main() {
   // executed during the resolution flow
   const resolve = Onchfs.resolver.create([
     {
-      blockchain: "tezos:ghostnet",
+      // ghostnet
+      blockchain: "tezos:NetXnHfVqm9iesp",
       rpcs: ["https://ghostnet.ecadinfra.com"],
     },
     {
-      blockchain: "tezos:mainnet",
+      // mainnet
+      blockchain: "tezos:NetXdQprcVkpaWU",
       rpcs: [
         "https://mainnet.ecadinfra.com",
         "https://mainnet.smartpy.io",
@@ -37,7 +39,7 @@ async function main() {
 
   // (speed-up demo): this implements a cache retrieval based on the req.path,
   // which is rather trivial. As explained at the top of this file, in-memory
-  // cache isn't ideal, although east to implement
+  // cache isn't ideal, although easy to implement
   app.use(async (req, res, next) => {
     if (inMemoryCache[req.path]) {
       console.log(`⚡️ cache hit for ${req.path}`)

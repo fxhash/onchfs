@@ -13,11 +13,24 @@ export const INODE_BYTE_IDENTIFIER = {
 // improve storage being shared as much as possible depending on the use cases
 export const DEFAULT_CHUNK_SIZE = 16384
 
+export const CHAIN_IDS = {
+  tezos: {
+    mainnet: "NetXdQprcVkpaWU",
+    ghostnet: "NetXnHfVqm9iesp",
+  },
+  eip155: {
+    mainnet: "1",
+    goerli: "5",
+  },
+} as const
+
 // TODO: insert true values here.
 // A naive map of the "official" onchfs Smart Contracts.
 export const DEFAULT_CONTRACTS: Record<BlockchainNetwork, string> = {
-  "tezos:mainnet": "KT1WvzYHCNBvDSdwafTHv7nJ1dWmZ8GCYuuC",
-  "tezos:ghostnet": "KT1FA8AGGcJha6S6MqfBUiibwTaYhK8u7s9Q",
-  "ethereum:1": "b0e58801d1b4d69179b7bc23fe54a37cee999b09",
-  "ethereum:5": "fcfdfa971803e1cc201f80d8e74de71fddea6551",
+  // tezos mainnet
+  "tezos:NetXdQprcVkpaWU": "KT1WvzYHCNBvDSdwafTHv7nJ1dWmZ8GCYuuC",
+  // tezos ghostnet
+  "tezos:NetXnHfVqm9iesp": "KT1FA8AGGcJha6S6MqfBUiibwTaYhK8u7s9Q",
+  "eip155:1": "b0e58801d1b4d69179b7bc23fe54a37cee999b09",
+  "eip155:5": "fcfdfa971803e1cc201f80d8e74de71fddea6551",
 }
