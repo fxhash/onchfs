@@ -1,24 +1,3 @@
-```
-Getting started (overview of the resources + the ONCHFS system)
-Overview
-Concepts
-  Hashing
-  Content-Store
-  File-Objects
-  CIDs
-  URIs
-  HTTP Proxy
-Use-cases
-  Support for libraries
-  Cross-chain compatibility
-Known Limitations
-  Content Availability
-  Ecosystem support
-Motivations
-
-onchfs js
-```
-
 # Website
 
 This website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
