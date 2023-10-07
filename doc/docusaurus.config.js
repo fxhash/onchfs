@@ -6,20 +6,20 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula")
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: "My Site",
-  tagline: "Dinosaurs are cool",
+  title: "ONCHFS — On-Chain for Http File System",
+  tagline: "A file system for blockchains.",
   favicon: "img/favicon.ico",
 
   // Set the production url of your site here
-  url: "https://your-docusaurus-test-site.com",
+  url: "https://onchfs.com",
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: "/",
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: "facebook", // Usually your GitHub org/user name.
-  projectName: "docusaurus", // Usually your repo name.
+  organizationName: "fxhash",
+  projectName: "onchfs",
 
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
@@ -47,7 +47,7 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            "https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/",
+            "https://github.com/fxhash/onchfs/tree/main/doc/templates/shared/",
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
@@ -64,10 +64,10 @@ const config = {
       image: "img/docusaurus-social-card.jpg",
       navbar: {
         title: "ONCHFS",
-        logo: {
-          alt: "My Site Logo",
-          src: "img/logo.svg",
-        },
+        // logo: {
+        //   alt: "My Site Logo",
+        //   src: "img/logo.svg",
+        // },
         items: [
           {
             type: "docSidebar",
@@ -88,7 +88,7 @@ const config = {
             label: "Libraries",
           },
           {
-            href: "https://github.com/facebook/docusaurus",
+            href: "https://github.com/fxhash/onchfs",
             label: "GitHub",
             position: "right",
           },
@@ -101,8 +101,16 @@ const config = {
             title: "Docs",
             items: [
               {
-                label: "Tutorial",
+                label: "Getting started",
                 to: "/docs/intro",
+              },
+              {
+                label: "Concepts",
+                to: "/docs/concepts/hashing",
+              },
+              {
+                label: "Libraries",
+                to: "/docs/libraries/overview",
               },
             ],
           },
@@ -128,12 +136,12 @@ const config = {
             items: [
               {
                 label: "GitHub",
-                href: "https://github.com/facebook/docusaurus",
+                href: "https://github.com/fxhash/onchfs",
               },
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} fxhash. Built with Docusaurus.`,
       },
       prism: {
         theme: lightCodeTheme,
