@@ -10,6 +10,12 @@ Simply put, URIs are constructed as following:
 onchfs://[<authority> /]<cid>[<path>][? <query>][# <fragment>]
 ```
 
+- `authority`: the host of the resource (blockchain/contract). Optional and left out most often as implied by the context. Aligns on [CAIP-2](https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md) & [CAIP-10](https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-10.md) specs for identifying blockchains & accounts.
+- `cid`: unique identifier of the root of the resource
+- `path`: eventualy path inside the folder if the resource identified by the cid is a directory
+- `query`: some query parameters to pass to the document to load
+- `fragment`: anchor/arbitraty data to pass to the document to load
+
 See at the bottom of the document for the [ABNF definition of onchfs uris](#abnf).
 
 ## Outside the protocol
@@ -64,7 +70,7 @@ Smart contracts provide a generic `get_inode_at(cid, paths[])` view which can re
 onchfs://6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840
 ```
 
-Point file object at `6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840` , where the context in which the URI was found defines the blockchain/network (for instance if a smart contract references this address, the resources will be found on the main file object smart contract of the ethereum mainnet)
+Point file object at `6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840` , where the context in which the URI was found defines the blockchain/network (for instance if an ethereum smart contract references this address, the resources will be found on the main file object smart contract of the ethereum mainnet)
 
 ---
 
@@ -77,15 +83,15 @@ Point inode folder at `6db0...6840` , in its `folder` directory, in which `index
 ---
 
 ```
-onchfs://ethereum:5/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840
+onchfs://eip155:5/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840
 ```
 
-Point file object at `6db0...6840` on the `ethereum` blockchain, goerli (`:5`) chain
+Point file object at `6db0...6840` on the ethereum (`eip155`) blockchain, goerli (`:5`) chain
 
 ---
 
 ```
-onchfs://68b75b4e8439a7099e53045bea850b3266e95906.eth/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840
+onchfs://eip155:1:68b75b4e8439a7099e53045bea850b3266e95906/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840
 ```
 
 Point file object `6db0...6840` on the contract `68b75b4e8439a7099e53045bea850b3266e95906` of the ethereum mainnet
@@ -98,26 +104,28 @@ The ABNF specification for onchfs URIs, as defined in [RFC 5234](https://datatra
 URI                   = "onchfs://" [ authority "/" ] cid [ "/" path ]
                         [ "?" query ] [ "#" fragment ]
 
-; while the authority is blockchain-specific as different
-; blockchains will have different strategies to identify
-; its resources with URI, this provides a generic pattern
-; for the authority as reference:
+; the authority is based on the CAIP-2 & CAIP-10 specifications
+; for identifying blockchains & blockchain accounts; terms have
+; been adapted to fit to onchfs context
 
-generic-authority     = [ contract-address "." ] blockchain-name
-                        [ ":" chainid ]
+generic-authority     = namespace [ ":" chain-id ]
+                        [ ":" contract-address]
 
 ; this defines how the authority is constructed for the
 ; ethereum and tezos blockchains, currently supported
 
 authority             = authority-tez / authority-eth
 
-authority-tez         = [ tez-contract-addr "." ]
-                        ( "tezos" / "tez" / "xtz" )
-                        [ ":" ( "mainnet" / "ghostnet" ) ]
+authority-tez         = "tezos"
+                        [ ":" tez-chainid ]
+                        [ ":" tez-contract-addr ]
 
-authority-eth         = [ eth-contract-addr "." ]
-                        ( "ethereum" / "eth" )
+tez-chainid           = "NetXdQprcVkpaWU"   ; mainnet
+                      / "NetXnHfVqm9iesp"   ; ghostnet
+
+authority-eth         = "eip155"
                         [ ":" eth-chainid ]
+                        [ ":" eth-contract-addr ]
 
 eth-chainid           = 1*DIGIT
                           ; ex: 1=mainnet, 5=goerli, 6=arbitrum
