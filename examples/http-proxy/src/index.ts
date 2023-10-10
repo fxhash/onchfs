@@ -17,13 +17,11 @@ async function main() {
   // executed during the resolution flow
   const resolve = Onchfs.resolver.create([
     {
-      // ghostnet
-      blockchain: "tezos:NetXnHfVqm9iesp",
+      blockchain: "tezos:ghostnet",
       rpcs: ["https://ghostnet.ecadinfra.com"],
     },
     {
-      // mainnet
-      blockchain: "tezos:NetXdQprcVkpaWU",
+      blockchain: "tezos:mainnet",
       rpcs: [
         "https://mainnet.ecadinfra.com",
         "https://mainnet.smartpy.io",
