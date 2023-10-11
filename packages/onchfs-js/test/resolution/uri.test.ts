@@ -12,6 +12,9 @@ import {
 } from "../../src/types/uri"
 import { DEFAULT_CONTRACTS } from "../../src/config"
 
+const TEZOS_MAIN_ID = "NetXdQprcVkpaWU"
+const TEZOS_GHOST_ID = "NetXnHfVqm9iesp"
+
 const CHARSETS = (() => {
   const LOW_ALPHA = "abcdefghijklmnopqrstuvwxyz"
   const HI_ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -192,7 +195,8 @@ describe("fragment segment MUST only accept certain characters", () => {
 describe("tezos pattern constrains", () => {
   const KT_BASE = (a: string, c: string) =>
     `KT${a}WvzYHCNBvDSdwafTHv7nJ1dWmZ8GCYuu${c}`
-  const BASE = (a: string, c: string) => `${KT_BASE(a, c)}.tezos`
+  const BASE = (a: string, c: string) =>
+    `tezos:${TEZOS_MAIN_ID}:${KT_BASE(a, c)}`
 
   test("sanity check with known valid address", () => {
     expect(parseAuthority(BASE("1", "a"))).toHaveProperty(
@@ -240,12 +244,12 @@ describe("parse URI", () => {
     expect(() => parseURI("./some/relative/path.txt")).toThrow()
     expect(() =>
       parseURI(
-        "abonchfs://ethereum:5/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840"
+        "abonchfs://eip155:5/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840"
       )
     ).toThrow()
     expect(() =>
       parseURI(
-        "onchfs://ethereum:5/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840°de"
+        "onchfs://eip155:5/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840°de"
       )
     ).toThrow()
   })
@@ -256,13 +260,13 @@ describe("parse URI", () => {
         {
           uri: "onchfs://6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
           context: {
-            blockchainName: "ethereum",
+            blockchainName: "eip155",
           },
           output: {
             cid: "6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
             authority: {
               contract: "b0e58801d1b4d69179b7bc23fe54a37cee999b09",
-              blockchainName: "ethereum",
+              blockchainName: "eip155",
               blockchainId: "1",
             },
           },
@@ -270,61 +274,61 @@ describe("parse URI", () => {
         {
           uri: "onchfs://6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840/folder/index.html",
           context: {
-            blockchainName: "ethereum",
+            blockchainName: "eip155",
           },
           output: {
             cid: "6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
             authority: {
               contract: "b0e58801d1b4d69179b7bc23fe54a37cee999b09",
-              blockchainName: "ethereum",
+              blockchainName: "eip155",
               blockchainId: "1",
             },
             path: "folder/index.html",
           },
         },
         {
-          uri: "onchfs://ethereum:5/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
+          uri: "onchfs://eip155:5/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
           output: {
             cid: "6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
             authority: {
               contract: "fcfdfa971803e1cc201f80d8e74de71fddea6551",
-              blockchainName: "ethereum",
+              blockchainName: "eip155",
               blockchainId: "5",
             },
           },
         },
         {
-          uri: "onchfs://68b75b4e8439a7099e53045bea850b3266e95906.eth/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
+          uri: "onchfs://eip155:1:68b75b4e8439a7099e53045bea850b3266e95906/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
           output: {
             cid: "6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
             authority: {
               contract: "68b75b4e8439a7099e53045bea850b3266e95906",
-              blockchainName: "ethereum",
+              blockchainName: "eip155",
               blockchainId: "1",
             },
           },
         },
         {
-          uri: "onchfs://KT1WvzYHCNBvDSdwafTHv7nJ1dWmZ8GCYuuC.tezos/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
+          uri: "onchfs://tezos:NetXdQprcVkpaWU:KT1WvzYHCNBvDSdwafTHv7nJ1dWmZ8GCYuuC/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
           output: {
             cid: "6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
             authority: {
               contract: "KT1WvzYHCNBvDSdwafTHv7nJ1dWmZ8GCYuuC",
               blockchainName: "tezos",
-              blockchainId: "mainnet",
+              blockchainId: "NetXdQprcVkpaWU",
             },
           },
         },
         {
           uri: "onchfs://6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840/folder/index.html?param1=4&param2=heyheyhey#a-fragment",
           context: {
-            blockchainName: "ethereum",
+            blockchainName: "eip155",
           },
           output: {
             cid: "6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
             authority: {
               contract: "b0e58801d1b4d69179b7bc23fe54a37cee999b09",
-              blockchainName: "ethereum",
+              blockchainName: "eip155",
               blockchainId: "1",
             },
             path: "folder/index.html",
@@ -342,7 +346,7 @@ describe("parse URI", () => {
             authority: {
               contract: "KT1WvzYHCNBvDSdwafTHv7nJ1dWmZ8GCYuuC",
               blockchainName: "tezos",
-              blockchainId: "mainnet",
+              blockchainId: "NetXdQprcVkpaWU",
             },
             query: "a-param=1234",
           },
@@ -414,11 +418,11 @@ describe("parse URI", () => {
   it("should normalize hexadecimal points (lower/upper)-case", () => {
     expect(
       parseURI(
-        "onchfs://ethereum:5/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840"
+        "onchfs://eip155/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840"
       )
     ).toEqual(
       parseURI(
-        "onchfs://ethereum:5/6db0ff44176C6f1E9f471DC0c3f15194827D1129af94628a3a753c747f726840"
+        "onchfs://eip155/6db0ff44176C6f1E9f471DC0c3f15194827D1129af94628a3a753c747f726840"
       )
     )
   })
@@ -428,10 +432,10 @@ describe("parseSchema", () => {
   it("should capture 2 groups for valid URIs", () => {
     expect(
       parseSchema(
-        "onchfs://ethereum:5/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840"
+        "onchfs://eip155/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840"
       )
     ).toEqual(
-      "ethereum:5/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840"
+      "eip155/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840"
     )
     expect(
       parseSchema(
@@ -506,24 +510,25 @@ describe("parse schema-specific components", () => {
         },
       },
       {
-        uri: "ethereum:5/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
+        uri: "eip155:5/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
         output: {
           cid: "6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
-          authority: "ethereum:5",
+          authority: "eip155:5",
         },
       },
       {
-        uri: "68b75b4e8439a7099e53045bea850b3266e95906.eth/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
+        uri: "eip155:342-45e:68b75b4e8439a7099e53045bea850b3266e95906/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
         output: {
           cid: "6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
-          authority: "68b75b4e8439a7099e53045bea850b3266e95906.eth",
+          authority: "eip155:342-45e:68b75b4e8439a7099e53045bea850b3266e95906",
         },
       },
       {
-        uri: "KT1WvzYHCNBvDSdwafTHv7nJ1dWmZ8GCYuuC.tezos/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
+        // weird chain id "bleblebleble"
+        uri: "tezos:blebleble:KT1WvzYHCNBvDSdwafTHv7nJ1dWmZ8GCYuuC/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
         output: {
           cid: "6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
-          authority: "KT1WvzYHCNBvDSdwafTHv7nJ1dWmZ8GCYuuC.tezos",
+          authority: "tezos:blebleble:KT1WvzYHCNBvDSdwafTHv7nJ1dWmZ8GCYuuC",
         },
       },
       {
@@ -545,24 +550,25 @@ describe("parse schema-specific components", () => {
   it("should still parse semi-invalid authority segment", () => {
     const set: { uri: string; output: URISchemaSpecificParts }[] = [
       {
-        uri: "aaaaaaaaaaaaaaaaaa:5/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
+        uri: "aaaaaaa:5/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
         output: {
           cid: "6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
-          authority: "aaaaaaaaaaaaaaaaaa:5",
+          authority: "aaaaaaa:5",
         },
       },
       {
-        uri: "68b75b4e8439a7099e53045bea850b3266e959.eth/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
+        // eth address has 38 characters
+        uri: "eip155:1:68b75b4e8439a7099e53045bea850b3266e959/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
         output: {
           cid: "6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
-          authority: "68b75b4e8439a7099e53045bea850b3266e959.eth",
+          authority: "eip155:1:68b75b4e8439a7099e53045bea850b3266e959",
         },
       },
       {
-        uri: "KT1Wvz.tezos/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
+        uri: "tezos:NetXdQprcVkpaWU:KT1Wvz/6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
         output: {
           cid: "6db0ff44176c6f1e9f471dc0c3f15194827d1129af94628a3a753c747f726840",
-          authority: "KT1Wvz.tezos",
+          authority: "tezos:NetXdQprcVkpaWU:KT1Wvz",
         },
       },
     ]
@@ -632,83 +638,43 @@ describe("URI authority parser", () => {
       out: URIAuthority
     }[] = [
       {
-        authority: "ethereum:5",
+        authority: "eip155:5",
         out: {
-          blockchainName: "ethereum",
+          blockchainName: "eip155",
           blockchainId: "5",
-          contract: DEFAULT_CONTRACTS["ethereum:5"],
+          contract: DEFAULT_CONTRACTS["eip155:5"],
         },
       },
       {
-        authority: "eth:5",
+        authority: "eip155:5",
         out: {
-          blockchainName: "ethereum",
+          blockchainName: "eip155",
           blockchainId: "5",
-          contract: DEFAULT_CONTRACTS["ethereum:5"],
+          contract: DEFAULT_CONTRACTS["eip155:5"],
         },
       },
       {
-        authority: "eth",
+        authority: "eip155",
         out: {
-          blockchainName: "ethereum",
+          blockchainName: "eip155",
           blockchainId: "1",
-          contract: DEFAULT_CONTRACTS["ethereum:1"],
+          contract: DEFAULT_CONTRACTS["eip155:1"],
         },
       },
       {
-        authority: "eth:1",
-        out: {
-          blockchainName: "ethereum",
-          blockchainId: "1",
-          contract: DEFAULT_CONTRACTS["ethereum:1"],
-        },
-      },
-      {
-        authority: "ethereum",
-        out: {
-          blockchainName: "ethereum",
-          blockchainId: "1",
-          contract: DEFAULT_CONTRACTS["ethereum:1"],
-        },
-      },
-      {
-        authority: "tezos:ghostnet",
+        authority: "tezos:NetXnHfVqm9iesp",
         out: {
           blockchainName: "tezos",
-          blockchainId: "ghostnet",
-          contract: DEFAULT_CONTRACTS["tezos:ghostnet"],
-        },
-      },
-      {
-        authority: "tez:ghostnet",
-        out: {
-          blockchainName: "tezos",
-          blockchainId: "ghostnet",
-          contract: DEFAULT_CONTRACTS["tezos:ghostnet"],
-        },
-      },
-      {
-        authority: "tez",
-        out: {
-          blockchainName: "tezos",
-          blockchainId: "mainnet",
-          contract: DEFAULT_CONTRACTS["tezos:mainnet"],
-        },
-      },
-      {
-        authority: "tez:mainnet",
-        out: {
-          blockchainName: "tezos",
-          blockchainId: "mainnet",
-          contract: DEFAULT_CONTRACTS["tezos:mainnet"],
+          blockchainId: "NetXnHfVqm9iesp",
+          contract: DEFAULT_CONTRACTS["tezos:NetXnHfVqm9iesp"],
         },
       },
       {
         authority: "tezos",
         out: {
           blockchainName: "tezos",
-          blockchainId: "mainnet",
-          contract: DEFAULT_CONTRACTS["tezos:mainnet"],
+          blockchainId: "NetXdQprcVkpaWU",
+          contract: DEFAULT_CONTRACTS["tezos:NetXdQprcVkpaWU"],
         },
       },
     ]
@@ -722,46 +688,46 @@ describe("URI authority parser", () => {
     const goods: { context: URIContext; out: URIAuthority }[] = [
       {
         context: {
-          blockchainName: "ethereum",
+          blockchainName: "eip155",
         },
         out: {
-          blockchainName: "ethereum",
+          blockchainName: "eip155",
           blockchainId: "1",
-          contract: DEFAULT_CONTRACTS["ethereum:1"],
+          contract: DEFAULT_CONTRACTS["eip155:1"],
         },
       },
       {
         context: {
-          blockchainName: "ethereum",
+          blockchainName: "eip155",
           blockchainId: "1",
-          contract: DEFAULT_CONTRACTS["ethereum:1"],
+          contract: DEFAULT_CONTRACTS["eip155:1"],
         },
         out: {
-          blockchainName: "ethereum",
+          blockchainName: "eip155",
           blockchainId: "1",
-          contract: DEFAULT_CONTRACTS["ethereum:1"],
+          contract: DEFAULT_CONTRACTS["eip155:1"],
         },
       },
       {
         context: {
-          blockchainName: "ethereum",
+          blockchainName: "eip155",
           blockchainId: "1",
-          contract: DEFAULT_CONTRACTS["ethereum:1"],
+          contract: DEFAULT_CONTRACTS["eip155:1"],
         },
         out: {
-          blockchainName: "ethereum",
+          blockchainName: "eip155",
           blockchainId: "1",
-          contract: DEFAULT_CONTRACTS["ethereum:1"],
+          contract: DEFAULT_CONTRACTS["eip155:1"],
         },
       },
       {
         context: {
-          blockchainName: "ethereum",
+          blockchainName: "eip155",
           blockchainId: "1",
           contract: "abcde",
         },
         out: {
-          blockchainName: "ethereum",
+          blockchainName: "eip155",
           blockchainId: "1",
           contract: "abcde",
         },
@@ -772,8 +738,8 @@ describe("URI authority parser", () => {
         },
         out: {
           blockchainName: "tezos",
-          blockchainId: "mainnet",
-          contract: DEFAULT_CONTRACTS["tezos:mainnet"],
+          blockchainId: "NetXdQprcVkpaWU",
+          contract: DEFAULT_CONTRACTS["tezos:NetXdQprcVkpaWU"],
         },
       },
     ]
@@ -784,12 +750,15 @@ describe("URI authority parser", () => {
   })
 
   it("should fail if some segments are invalid", () => {
-    expect(() => parseAuthority("KT8LELE.tezos")).toThrow()
+    expect(() => parseAuthority("tezos:NetXdQprcVkpaWU:KT8LELE")).toThrow()
     expect(() =>
-      parseAuthority("1e9f471dc0c3f15194827d1129af94628a3a753K.eth")
+      parseAuthority("eip155:1:1e9f471dc0c3f15194827d1129af94628a3a753K")
     ).toThrow()
     expect(() =>
-      parseAuthority("1e9f471dc0c3f15194827d1129af94628a3a753f.eth.ge")
+      parseAuthority("eip155:1:1e9f471dc0c3f15194827d1129af94628a3a753f.ge")
+    ).toThrow()
+    expect(() =>
+      parseAuthority("eip155:1:1e9f471dc0c3f15194827d1129af94628a3a753f:1a")
     ).toThrow()
   })
 

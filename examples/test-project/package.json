@@ -17,6 +17,7 @@
     "@taquito/signer": "17.3.0",
     "@taquito/taquito": "17.3.0",
     "@types/node-dir": "0.0.34",
+    "axios": "1.5.1",
     "node-dir": "0.1.17",
     "onchfs": "workspace:*",
     "tslib": "2.6.0"

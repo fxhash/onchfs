@@ -271,26 +271,28 @@ The ABNF specification for onchfs URIs, as defined in [RFC 5234](https://datatra
 URI                   = "onchfs://" [ authority "/" ] cid [ "/" path ]
                         [ "?" query ] [ "#" fragment ]
 
-; while the authority is blockchain-specific as different
-; blockchains will have different strategies to identify
-; its resources with URI, this provides a generic pattern
-; for the authority as reference:
+; the authority is based on the CAIP-2 & CAIP-10 specifications
+; for identifying blockchains & blockchain accounts; terms have
+; been adapted to fit to onchfs context
 
-generic-authority     = [ contract-address "." ] blockchain-name
-                        [ ":" chainid ]
+generic-authority     = namespace [ ":" chain-id ]
+                        [ ":" contract-address]
 
 ; this defines how the authority is constructed for the
 ; ethereum and tezos blockchains, currently supported
 
 authority             = authority-tez / authority-eth
 
-authority-tez         = [ tez-contract-addr "." ]
-                        ( "tezos" / "tez" / "xtz" )
-                        [ ":" ( "mainnet" / "ghostnet" ) ]
+authority-tez         = "tezos"
+                        [ ":" tez-chainid ]
+                        [ ":" tez-contract-addr ]
 
-authority-eth         = [ eth-contract-addr "." ]
-                        ( "ethereum" / "eth" )
+tez-chainid           = "NetXdQprcVkpaWU"   ; mainnet
+                      / "NetXnHfVqm9iesp"   ; ghostnet
+
+authority-eth         = "eip155"
                         [ ":" eth-chainid ]
+                        [ ":" eth-contract-addr ]
 
 eth-chainid           = 1*DIGIT
                           ; ex: 1=mainnet, 5=goerli, 6=arbitrum

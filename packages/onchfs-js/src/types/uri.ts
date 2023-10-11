@@ -1,19 +1,21 @@
+import { CHAIN_IDS } from "@/config"
+
 /**
  * List of the blockchain supported officially. While the protocol can be
  * deployed anywhere, the URI resolution is more easily inferred from the
  * supported deployments.
  */
-export const blockchainNames = ["tezos", "ethereum"] as const
+export const blockchainNames = ["tezos", "eip155"] as const
 export type BlockchainNames = (typeof blockchainNames)[number]
 
 /**
  * Each blockchain has a list of supported networks
  */
 export const blockchainNetworks = [
-  "tezos:mainnet",
-  "tezos:ghostnet",
-  "ethereum:1",
-  "ethereum:5",
+  `tezos:${CHAIN_IDS.tezos.mainnet}`,
+  `tezos:${CHAIN_IDS.tezos.ghostnet}`,
+  `eip155:${CHAIN_IDS.eip155.mainnet}`,
+  `eip155:${CHAIN_IDS.eip155.goerli}`,
 ] as const
 export type BlockchainNetwork = (typeof blockchainNetworks)[number]
 

@@ -68,3 +68,12 @@ export function areUint8ArrayEqual(a: Uint8Array, b: Uint8Array): boolean {
   }
   return true
 }
+
+/**
+ * Outputs the hex string representation of the uint8array
+ * @param uint8 The uint8 array
+ * @returns The hex string representation of the uint8array
+ */
+export function u8hex(uint8: Uint8Array): string {
+  return [...uint8].map(x => x.toString(16).padStart(2, "0")).join("")
+}
