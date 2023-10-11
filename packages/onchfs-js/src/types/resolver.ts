@@ -1,8 +1,23 @@
 import { FileMetadataEntries } from "./metadata"
 import { BlockchainNetwork, URIAuthority } from "./uri"
 
+/**
+ * For every base blockchain supported, also provide a list of aliases to make
+ * it easier to build apps using onchfs (otherwise for tezos for instance it
+ * could be hard to know which chain id is mainnet).
+ */
+export const chainAliases = {
+  "tezos:NetXdQprcVkpaWU": ["tezos:mainnet"] as const,
+  "tezos:NetXnHfVqm9iesp": ["tezos:ghostnet"] as const,
+  "eip155:1": ["ethereum:mainnet", "eth:mainnet"] as const,
+  "eip155:5": ["ethereum:goerli", "eth:goerli"] as const,
+} as const
+export type ChainAliases =
+  | BlockchainNetwork
+  | (typeof chainAliases)[BlockchainNetwork][number]
+
 export interface BlockchainResolverCtrl {
-  blockchain: BlockchainNetwork
+  blockchain: ChainAliases
   rpcs: string[]
   contract?: string
 }
@@ -10,7 +25,7 @@ export interface BlockchainResolverCtrl {
 export type ResolverContractDecorator = (address?: string) => Resolver
 
 export interface BlockchainResolver {
-  blockchain: BlockchainNetwork
+  blockchain: ChainAliases
   resolverWithContract: ResolverContractDecorator
 }
 

@@ -15,8 +15,15 @@ import {
   ProxyResolutionStatusRedirect,
   ProxyResolutionStatusSuccess,
   Resolver,
+  chainAliases,
 } from "@/types/resolver"
-import { URIAuthority, URISchemaSpecificParts } from "@/types/uri"
+import {
+  BlockchainNetwork,
+  URIAuthority,
+  URISchemaSpecificParts,
+  blockchainNames,
+  blockchainNetworks,
+} from "@/types/uri"
 import {
   parseAuthority,
   parseSchema,
@@ -82,7 +89,24 @@ const ResolutionErrors: Record<ProxyResolutionStatusErrors, string> = {
 export function createProxyResolver(controllers: BlockchainResolverCtrl[]) {
   // add default cain contract if missing
   const blockchainResolvers: BlockchainResolver[] = controllers.map(h => {
-    const blockchain = h.blockchain.split(":")[0] as "tezos" | "ethereum"
+    // find the base chain id by resolving aliases if needed
+    let baseChainId: BlockchainNetwork
+    if ((blockchainNetworks as readonly string[]).includes(h.blockchain)) {
+      baseChainId = h.blockchain as BlockchainNetwork
+    } else {
+      for (const [base, aliases] of Object.entries(chainAliases)) {
+        if ((aliases as readonly string[]).includes(h.blockchain)) {
+          baseChainId = base as BlockchainNetwork
+        }
+      }
+      if (!baseChainId) {
+        throw new Error(
+          `The given blockchain identifier "${h.blockchain}" is unknown, it cannot be resvoled by this resolver`
+        )
+      }
+    }
+
+    const blockchain = baseChainId.split(":")[0] as "tezos" | "eip155"
 
     switch (blockchain) {
       case "tezos": {
@@ -150,7 +174,7 @@ export function createProxyResolver(controllers: BlockchainResolverCtrl[]) {
           },
         }
       }
-      case "ethereum": {
+      case "eip155": {
         throw new Error("Implement eth resolver!")
       }
     }

@@ -2,7 +2,7 @@
  * Proper charsets tightly following the spec
  */
 
-import { DEFAULT_CONTRACTS } from "@/config"
+import { CHAIN_IDS, DEFAULT_CONTRACTS } from "@/config"
 import {
   BlockchainNames,
   URIAuthority,
@@ -120,7 +120,10 @@ export function parseSchema(uri: string): string {
 export function parseSchemaSpecificPart(
   uriPart: string
 ): URISchemaSpecificParts {
-  const authorityReg = `([${AUTHORITY_CHARSET}]*)\\/`
+  // CAIP-2 Blockchain ID Specification: https://chainagnostic.org/CAIPs/caip-2
+  // CAIP-10: Account ID Specification: https://chainagnostic.org/CAIPs/caip-10
+  const authorityReg = `([-a-z0-9]{3,8}(?::[-_a-zA-Z0-9]{1,32}(?::[-.%a-zA-Z0-9]{1,128})?)?)\\/`
+
   const cidReg = `[${HEX_CHARSET}]{64}`
   const pathReg = `${SEG_CHARSET}*(?:\\/${SEG_CHARSET}*)*`
   const queryReg = `\\?(${QUERY_CHARSET}*)`
@@ -154,26 +157,18 @@ export function parseSchemaSpecificPart(
 const blockchainAuthorityParsers: Record<BlockchainNames, () => RegExp> = {
   tezos: () =>
     new RegExp(
-      `^(?:(KT(?:1|2|3|4)[${B58_CHARSET}]{33})\\.)?(tezos|tez|xtz)(?::(ghostnet|mainnet))?$`
+      `^(tezos)(?::(?:(Net[${B58_CHARSET}]{12}))(?::(KT(?:1|2|3|4)[${B58_CHARSET}]{33}))?)?$`
     ),
-  ethereum: () =>
-    new RegExp(`^(?:([${HEX_CHARSET}]{40})\\.)?(ethereum|eth)(?::([0-9]+))?$`),
-}
-
-type BlockchainNameVariants = {
-  [K in BlockchainNames]: [K, ...string[]]
-}
-const blockchainNameVariants: BlockchainNameVariants = {
-  tezos: ["tezos", "tez", "xtz"],
-  ethereum: ["ethereum", "eth"],
+  eip155: () =>
+    new RegExp(`^(eip155)(?::([0-9]{1,})(?::([${HEX_CHARSET}]{40}))?)?$`),
 }
 
 type BlockchainDefaultNetwork = {
   [K in BlockchainNames]: string
 }
 const blockchainDefaultNetwork: BlockchainDefaultNetwork = {
-  tezos: "mainnet",
-  ethereum: "1",
+  tezos: CHAIN_IDS.tezos.mainnet,
+  eip155: CHAIN_IDS.eip155.mainnet,
 }
 
 /**
@@ -221,7 +216,7 @@ export function parseAuthority(
       // no result; move to next blockchain
       if (!res) continue
       // results are in slots [1;3] - assign to temp object being parsed
-      const [contract, blockchainName, blockchainId] = res.splice(1, 3)
+      const [blockchainName, blockchainId, contract] = res.splice(1, 3)
       contract && (tmp.contract = contract)
       blockchainName && (tmp.blockchainName = blockchainName)
       blockchainId && (tmp.blockchainId = blockchainId)
@@ -235,13 +230,6 @@ export function parseAuthority(
     throw new Error(
       "the blockchain could not be inferred when parsing the URI, if the URI doesn't have an authority segment (onchfs://<authority>/<cid>/<path>...), a context should be provided based on where the URI was observed. The blockchain needs to be resolved either through the URI or using the context."
     )
-  }
-  // normalize blockchain name into its cleanest and most comprehensible form
-  for (const [name, values] of Object.entries(blockchainNameVariants)) {
-    if (values.includes(tmp.blockchainName)) {
-      tmp.blockchainName = name
-      break
-    }
   }
 
   // if blockchain ID is missing, then assign the default blockchain ID
