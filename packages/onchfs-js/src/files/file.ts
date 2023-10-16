@@ -6,6 +6,8 @@ import { concatUint8Arrays, keccak } from "@/utils"
 import { FileMetadataEntries } from "@/types/metadata"
 import { encodeMetadata } from "@/metadata/encode"
 import { FileInode, IFile } from "@/types/files"
+import { u8hex } from "@/utils/uint8"
+import { decodeMetadata } from "@/metadata/decode"
 // import { fileTypeFromBuffer } from "file-type"
 
 /**
@@ -32,6 +34,15 @@ export function prepareFile(
   let insertionBytes = content
   // we use file extension to get mime type
   let mime = lookupMime(name)
+
+  console.log("--------------------------------------------------------------")
+  console.log("PREPARE FILE")
+  console.log("----------------------------------")
+
+  console.log({ file })
+
+  console.log({ mime })
+
   // if no mime type can be mapped from filename, use magic number
   if (!mime) {
     // const magicMime = await fileTypeFromBuffer(content)
@@ -46,6 +57,7 @@ export function prepareFile(
   } else {
     metadata["Content-Type"] = mime
   }
+  console.log({ metadata })
 
   // compress into gzip using node zopfli, only keep if better
   const compressed = gzip(content)
@@ -53,6 +65,8 @@ export function prepareFile(
     insertionBytes = compressed
     metadata["Content-Encoding"] = "gzip"
   }
+
+  console.log({ metadata })
 
   // chunk the file
   const chunks = chunkBytes(insertionBytes, chunkSize)
@@ -65,6 +79,17 @@ export function prepareFile(
   const cid = keccak(
     concatUint8Arrays(INODE_BYTE_IDENTIFIER.FILE, contentHash, metadataHash)
   )
+
+  console.log({
+    type: "file",
+    cid,
+    chunks,
+    metadata: metadataEncoded,
+  })
+
+  console.log("---DECODED METADATA")
+  console.log(u8hex(metadataEncoded))
+  console.log(decodeMetadata(metadataEncoded))
 
   return {
     type: "file",
