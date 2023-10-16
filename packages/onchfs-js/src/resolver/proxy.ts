@@ -126,7 +126,7 @@ export function createProxyResolver(controllers: BlockchainResolverCtrl[]) {
           blockchain: h.blockchain,
           resolverWithContract: (address?: string) => {
             // default blockchain address if not specified
-            address = address || DEFAULT_CONTRACTS[h.blockchain]
+            address = address || DEFAULT_CONTRACTS[baseChainId]
             if (!address) {
               throw new Error(
                 `no contract address was found; neither can it be inferred from the context (${h.blockchain}) nor has it been provided during resolution.`
@@ -141,7 +141,7 @@ export function createProxyResolver(controllers: BlockchainResolverCtrl[]) {
                     path,
                   })
                   .executeView({
-                    viewCaller: "KT1Uktxf9dgGga6DRRNbGEDepxFGTwNtTg4y",
+                    viewCaller: address,
                   })
 
                 // if the contract has answered with a directory
@@ -166,7 +166,7 @@ export function createProxyResolver(controllers: BlockchainResolverCtrl[]) {
               readFile: async cid => {
                 const kt = await KT(address)
                 const res = await kt.contractViews.read_file(cid).executeView({
-                  viewCaller: "KT1Uktxf9dgGga6DRRNbGEDepxFGTwNtTg4y",
+                  viewCaller: address,
                 })
                 return hexStringToBytes(res.content)
               },
