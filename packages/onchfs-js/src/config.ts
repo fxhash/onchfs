@@ -28,7 +28,7 @@ export const CHAIN_IDS = {
 // A naive map of the "official" onchfs Smart Contracts.
 export const DEFAULT_CONTRACTS: Record<BlockchainNetwork, string> = {
   // tezos mainnet
-  "tezos:NetXdQprcVkpaWU": "KT1WvzYHCNBvDSdwafTHv7nJ1dWmZ8GCYuuC",
+  "tezos:NetXdQprcVkpaWU": "KT1Ae7dT1gsLw2tRnUMXSCmEyF74KVkM6LUo",
   // tezos ghostnet
   "tezos:NetXnHfVqm9iesp": "KT1FA8AGGcJha6S6MqfBUiibwTaYhK8u7s9Q",
   "eip155:1": "b0e58801d1b4d69179b7bc23fe54a37cee999b09",
