@@ -1,0 +1,23 @@
+{
+  "name": "test-project-next",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@taquito/signer": "^17.3.0",
+    "@taquito/taquito": "^17.3.0",
+    "onchfs": "workspace:*",
+    "@types/node": "20.5.9",
+    "@types/react": "*",
+    "@types/react-dom": "*",
+    "next": "13.4.19",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "typescript": "5.2.2"
+  }
+}
