@@ -35,7 +35,7 @@ The raw bytes of data are stored as chunks in a dumb Content Store contract, onl
 
 ### Content-Addressed
 
-Chunks of data, files & directories are hashed and identified by their in the Content Store hash.
+Chunks of data, files & directories are hashed and identified by their Content Store hash.
 
 ### Unix-like
 
