@@ -1,14 +1,12 @@
 import { gzip } from "pako"
-import { DEFAULT_CHUNK_SIZE, INODE_BYTE_IDENTIFIER } from "@/config"
 import { lookup as lookupMime } from "mime-types"
 import { chunkBytes } from "./chunks"
-import { concatUint8Arrays, keccak } from "@/utils"
 import { FileMetadataEntries } from "@/types/metadata"
 import { encodeMetadata } from "@/metadata/encode"
-import { FileInode, IFile } from "@/types/files"
+import { FileInode, IFile, OnchfsPrepareOptions } from "@/types/files"
 import { u8hex } from "@/utils/uint8"
 import { decodeMetadata } from "@/metadata/decode"
-// import { fileTypeFromBuffer } from "file-type"
+import { computeFileCid } from "@/cid"
 
 /**
  * Computes all the necessary data for the inscription of the file on-chain.
@@ -27,7 +25,7 @@ import { decodeMetadata } from "@/metadata/decode"
  */
 export function prepareFile(
   file: IFile,
-  chunkSize: number = DEFAULT_CHUNK_SIZE
+  options: Required<OnchfsPrepareOptions>
 ): FileInode {
   const { path: name, content } = file
   let metadata: FileMetadataEntries = {}
@@ -68,16 +66,14 @@ export function prepareFile(
 
   console.log({ metadata })
 
-  // chunk the file
-  const chunks = chunkBytes(insertionBytes, chunkSize)
-  // encode the metadata
+  // chunk the file, encode its metadata and compute its CID based on provided
+  // hashing strategy
+  const chunks = chunkBytes(insertionBytes, options.chunkSize)
   const metadataEncoded = encodeMetadata(metadata)
-  // compute the file unique identifier, following the onchfs specifications:
-  // keccak( 0x01 , keccak( content ), keccak( metadata ) )
-  const contentHash = keccak(insertionBytes)
-  const metadataHash = keccak(metadataEncoded)
-  const cid = keccak(
-    concatUint8Arrays(INODE_BYTE_IDENTIFIER.FILE, contentHash, metadataHash)
+  const cid = computeFileCid(
+    chunks,
+    metadataEncoded,
+    options.fileHashingStrategy
   )
 
   console.log({

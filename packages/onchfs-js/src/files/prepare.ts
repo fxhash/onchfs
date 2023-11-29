@@ -10,6 +10,7 @@ import { prepareFile } from "./file"
 
 const defaultPrepareOptions: Required<OnchfsPrepareOptions> = {
   chunkSize: DEFAULT_CHUNK_SIZE,
+  fileHashingStrategy: "consistent",
 }
 
 /**
@@ -93,8 +94,8 @@ export function prepare(
     ...(options || {}),
   }
   if (Array.isArray(files)) {
-    return prepareDirectory(files, _options.chunkSize)
+    return prepareDirectory(files, _options)
   } else {
-    return prepareFile(files, _options.chunkSize)
+    return prepareFile(files, _options)
   }
 }

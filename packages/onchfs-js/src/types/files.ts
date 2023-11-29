@@ -50,6 +50,25 @@ export type PrepareDirectoryDir = {
 
 export type PrepareDirectoryNode = PrepareDirectoryFile | PrepareDirectoryDir
 
+/**
+ * How the File cids are constructed. Some blockchains are expensive and as
+ * such having a consistent cid generation on the input bytes might be quite
+ * expensive, as such the file system supports 2 ways of hashing files:
+ * - consistent: hash the whole file content
+ * - cheap: hash the checksums of the file chunks
+ */
+export type FileHashingStrategy = "consistent" | "cheap"
+
 export interface OnchfsPrepareOptions {
+  /**
+   * The size of the chunks. Leaving is as default will fallback to onchfs
+   * default chunk size, which is meant to be optimized for most purposes.
+   */
   chunkSize?: number
+
+  /**
+   * The strategy which will be used for computing file cids from their
+   * chunks.
+   */
+  fileHashingStrategy?: FileHashingStrategy
 }

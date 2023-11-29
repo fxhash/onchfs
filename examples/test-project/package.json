@@ -14,13 +14,16 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@fxhash/config": "workspace:*",
+    "@fxhash/eth-sdk": "workspace:*",
     "@taquito/signer": "17.3.0",
     "@taquito/taquito": "17.3.0",
     "@types/node-dir": "0.0.34",
     "axios": "1.5.1",
     "node-dir": "0.1.17",
     "onchfs": "workspace:*",
-    "tslib": "2.6.0"
+    "tslib": "2.6.0",
+    "viem": "1.14.0"
   },
   "devDependencies": {
     "@types/node": "18.7.13",
