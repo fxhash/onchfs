@@ -201,14 +201,6 @@ export function createProxyResolver(controllers: BlockchainResolverCtrl[]) {
               getInodeAtPath: async (cid: string, path: string[]) => {
                 try {
                   //@ts-ignore
-                  const fdata = encodeFunctionData({
-                    abi: ONCHFS_FILE_SYSTEM_ABI,
-                    functionName: "getInodeAt",
-                    args: [`0x${cid}`, path],
-                  })
-
-                  console.log({ fdata })
-                  //@ts-ignore
                   const out: [`0x${string}`, EthInode] = await (
                     publicClient as any
                   ).readContract({
@@ -217,7 +209,6 @@ export function createProxyResolver(controllers: BlockchainResolverCtrl[]) {
                     functionName: "getInodeAt",
                     args: [`0x${cid}`, path],
                   })
-                  console.log({ out })
                   if (out && (out as any)?.length === 2) {
                     const cid = out[0].replace("0x", "")
                     const inode = out[1]
@@ -251,7 +242,6 @@ export function createProxyResolver(controllers: BlockchainResolverCtrl[]) {
                     throw new Error("wrogn response from contract")
                   }
                 } catch (err) {
-                  console.log(err)
                   return null
                 }
               },
@@ -302,43 +292,47 @@ export function createProxyResolver(controllers: BlockchainResolverCtrl[]) {
       const resolvers = orderedResolversFromAuthority(authority)
       // try finding the resource on every resolver
       let res: InodeNativeFS | null = null
-      for (const resolver of resolvers) {
-        try {
-          res = await resolver
-            .resolverWithContract(authority?.contract)
-            .getInodeAtPath(cid, path)
-          break
-        } catch (err) {
-          continue
-        }
-      }
-
-      if (res) return res
-      else
+      try {
+        res = await Promise.any(
+          resolvers.map(async resolver => {
+            const resp = await resolver
+              .resolverWithContract(authority?.contract)
+              .getInodeAtPath(cid, path)
+            if (resp) return resp
+            throw Error("file not found")
+          })
+        )
+        if (res) return res
+        throw null
+      } catch (err) {
+        console.log(err)
         throw new Error(
           "searched all available blockchains, resource not found."
         )
+      }
     },
     async readFile(cid, chunkPointers, authority) {
       const resolvers = orderedResolversFromAuthority(authority)
       // try finding the resource on every resolver
       let res: string | Uint8Array | null = null
-      for (const resolver of resolvers) {
-        try {
-          res = await resolver
-            .resolverWithContract(authority?.contract)
-            .readFile(cid, chunkPointers)
-          break
-        } catch (err) {
-          continue
-        }
-      }
-
-      if (res) return res
-      else
+      try {
+        res = await Promise.any(
+          resolvers.map(async resolver => {
+            const resp = await resolver
+              .resolverWithContract(authority?.contract)
+              .readFile(cid, chunkPointers)
+            if (resp) return resp
+            throw Error("file not found")
+          })
+        )
+        if (res) return res
+        throw null
+      } catch (err) {
+        console.log(err)
         throw new Error(
           "searched all available blockchains, resource not found."
         )
+      }
     },
   })
 }
