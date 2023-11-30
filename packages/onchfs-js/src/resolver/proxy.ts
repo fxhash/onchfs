@@ -21,7 +21,6 @@ import {
   BlockchainNetwork,
   URIAuthority,
   URISchemaSpecificParts,
-  blockchainNames,
   blockchainNetworks,
 } from "@/types/uri"
 import {
@@ -35,6 +34,8 @@ import {
   ContractProvider,
 } from "@taquito/taquito"
 import { DEFAULT_CONTRACTS } from "@/config"
+import { createPublicClient, fallback, hexToBytes, http } from "viem"
+import { ONCHFS_FILE_SYSTEM_ABI } from "@/utils/abi"
 
 const ResolutionErrors: Record<ProxyResolutionStatusErrors, string> = {
   [ProxyResolutionStatusErrors.BAD_REQUEST]: "Bad Request",
@@ -175,7 +176,54 @@ export function createProxyResolver(controllers: BlockchainResolverCtrl[]) {
         }
       }
       case "eip155": {
-        throw new Error("Implement eth resolver!")
+        const publicClient = createPublicClient({
+          transport: fallback(h.rpcs.map(rpc => http(rpc))),
+        })
+        return {
+          blockchain: h.blockchain,
+          resolverWithContract: (address?: string) => {
+            // default blockchain address if not specified
+            address = address || DEFAULT_CONTRACTS[baseChainId]
+            if (!address) {
+              throw new Error(
+                `no contract address was found; neither can it be inferred from the context (${h.blockchain}) nor has it been provided during resolution.`
+              )
+            }
+
+            return {
+              getInodeAtPath: async () =>
+                // cid: string,
+                // path: string[],
+                // authority?: URIAuthority
+                {
+                  // TODO: properly implement returning a File Object
+                  if (true) {
+                    return {
+                      cid: "...",
+                      files: {},
+                    }
+                  }
+                  // else {
+                  //   return {
+                  //     cid: "...",
+                  //     metadata: "...",
+                  //     chunkPointers: [],
+                  //   }
+                  // }
+                },
+              readFile: async (cid: string) => {
+                //@ts-ignore
+                const hexBytesString = await publicClient.readContract({
+                  address: address as `0x${string}`,
+                  abi: ONCHFS_FILE_SYSTEM_ABI,
+                  functionName: "readFile",
+                  args: [`0x${cid}`],
+                })
+                return hexToBytes(hexBytesString as any)
+              },
+            }
+          },
+        }
       }
     }
   })

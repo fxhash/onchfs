@@ -26,7 +26,8 @@
     "hpack.js": "2.1.6",
     "js-sha3": "0.9.1",
     "mime-types": "2.1.35",
-    "pako": "2.1.0"
+    "pako": "2.1.0",
+    "viem": "1.14.0"
   },
   "devDependencies": {
     "@babel/core": "7.22.19",
