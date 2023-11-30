@@ -9,7 +9,6 @@ export const ONCHFS_FILE_SYSTEM_ABI = [
   { inputs: [], name: "ChunkNotFound", type: "error" },
   { inputs: [], name: "DirectoryNotFound", type: "error" },
   { inputs: [], name: "FileNotFound", type: "error" },
-  { inputs: [], name: "InodeAlreadyExists", type: "error" },
   { inputs: [], name: "InodeNotFound", type: "error" },
   { inputs: [], name: "InvalidCharacter", type: "error" },
   {
@@ -21,7 +20,58 @@ export const ONCHFS_FILE_SYSTEM_ABI = [
     name: "InvalidCodeAtRange",
     type: "error",
   },
+  { inputs: [], name: "InvalidFileName", type: "error" },
   { inputs: [], name: "LengthMismatch", type: "error" },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "_checksum",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "string[]",
+        name: "_names",
+        type: "string[]",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32[]",
+        name: "_inodeChecksums",
+        type: "bytes32[]",
+      },
+    ],
+    name: "DirectoryCreated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "_checksum",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "metadata",
+        type: "bytes",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32[]",
+        name: "_chunkPointers",
+        type: "bytes32[]",
+      },
+    ],
+    name: "FileCreated",
+    type: "event",
+  },
   {
     inputs: [],
     name: "CONTENT_STORE",
@@ -36,6 +86,18 @@ export const ONCHFS_FILE_SYSTEM_ABI = [
     name: "concatenateChunks",
     outputs: [{ internalType: "bytes", name: "fileContent", type: "bytes" }],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "string[]", name: "_fileNames", type: "string[]" },
+      { internalType: "bytes32[]", name: "_filePointers", type: "bytes32[]" },
+    ],
+    name: "concatenateFiles",
+    outputs: [
+      { internalType: "bytes", name: "concatenatedFiles", type: "bytes" },
+    ],
+    stateMutability: "pure",
     type: "function",
   },
   {
@@ -64,13 +126,48 @@ export const ONCHFS_FILE_SYSTEM_ABI = [
   },
   {
     inputs: [
-      { internalType: "string[]", name: "_fileNames", type: "string[]" },
+      { internalType: "bytes32", name: "_inodeChecksum", type: "bytes32" },
+      { internalType: "string[]", name: "_pathSegments", type: "string[]" },
     ],
-    name: "hashFileNames",
+    name: "getInodeAt",
     outputs: [
-      { internalType: "bytes32[]", name: "hashedPaths", type: "bytes32[]" },
+      { internalType: "bytes32", name: "", type: "bytes32" },
+      {
+        components: [
+          { internalType: "enum InodeType", name: "inodeType", type: "uint8" },
+          {
+            components: [
+              { internalType: "bytes", name: "metadata", type: "bytes" },
+              {
+                internalType: "bytes32[]",
+                name: "chunkChecksums",
+                type: "bytes32[]",
+              },
+            ],
+            internalType: "struct File",
+            name: "file",
+            type: "tuple",
+          },
+          {
+            components: [
+              { internalType: "string[]", name: "filenames", type: "string[]" },
+              {
+                internalType: "bytes32[]",
+                name: "fileChecksums",
+                type: "bytes32[]",
+              },
+            ],
+            internalType: "struct Directory",
+            name: "directory",
+            type: "tuple",
+          },
+        ],
+        internalType: "struct Inode",
+        name: "",
+        type: "tuple",
+      },
     ],
-    stateMutability: "pure",
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -87,7 +184,7 @@ export const ONCHFS_FILE_SYSTEM_ABI = [
       { internalType: "enum InodeType", name: "inodeType", type: "uint8" },
       {
         components: [
-          { internalType: "bytes", name: "name", type: "bytes" },
+          { internalType: "bytes", name: "metadata", type: "bytes" },
           {
             internalType: "bytes32[]",
             name: "chunkChecksums",
@@ -100,7 +197,7 @@ export const ONCHFS_FILE_SYSTEM_ABI = [
       },
       {
         components: [
-          { internalType: "string[]", name: "paths", type: "string[]" },
+          { internalType: "string[]", name: "filenames", type: "string[]" },
           {
             internalType: "bytes32[]",
             name: "fileChecksums",

@@ -33,14 +33,6 @@ export function prepareFile(
   // we use file extension to get mime type
   let mime = lookupMime(name)
 
-  console.log("--------------------------------------------------------------")
-  console.log("PREPARE FILE")
-  console.log("----------------------------------")
-
-  console.log({ file })
-
-  console.log({ mime })
-
   // if no mime type can be mapped from filename, use magic number
   if (!mime) {
     // const magicMime = await fileTypeFromBuffer(content)
@@ -55,7 +47,6 @@ export function prepareFile(
   } else {
     metadata["Content-Type"] = mime
   }
-  console.log({ metadata })
 
   // compress into gzip using node zopfli, only keep if better
   const compressed = gzip(content)
@@ -63,8 +54,6 @@ export function prepareFile(
     insertionBytes = compressed
     metadata["Content-Encoding"] = "gzip"
   }
-
-  console.log({ metadata })
 
   // chunk the file, encode its metadata and compute its CID based on provided
   // hashing strategy
@@ -75,17 +64,6 @@ export function prepareFile(
     metadataEncoded,
     options.fileHashingStrategy
   )
-
-  console.log({
-    type: "file",
-    cid,
-    chunks,
-    metadata: metadataEncoded,
-  })
-
-  console.log("---DECODED METADATA")
-  console.log(u8hex(metadataEncoded))
-  console.log(decodeMetadata(metadataEncoded))
 
   return {
     type: "file",

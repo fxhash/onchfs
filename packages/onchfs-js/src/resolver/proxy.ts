@@ -34,8 +34,15 @@ import {
   ContractProvider,
 } from "@taquito/taquito"
 import { DEFAULT_CONTRACTS } from "@/config"
-import { createPublicClient, fallback, hexToBytes, http } from "viem"
+import {
+  createPublicClient,
+  encodeFunctionData,
+  fallback,
+  hexToBytes,
+  http,
+} from "viem"
 import { ONCHFS_FILE_SYSTEM_ABI } from "@/utils/abi"
+import { EthInode, EthInodeType } from "@/types/eth"
 
 const ResolutionErrors: Record<ProxyResolutionStatusErrors, string> = {
   [ProxyResolutionStatusErrors.BAD_REQUEST]: "Bad Request",
@@ -191,26 +198,63 @@ export function createProxyResolver(controllers: BlockchainResolverCtrl[]) {
             }
 
             return {
-              getInodeAtPath: async () =>
-                // cid: string,
-                // path: string[],
-                // authority?: URIAuthority
-                {
-                  // TODO: properly implement returning a File Object
-                  if (true) {
-                    return {
-                      cid: "...",
-                      files: {},
+              getInodeAtPath: async (cid: string, path: string[]) => {
+                try {
+                  //@ts-ignore
+                  const fdata = encodeFunctionData({
+                    abi: ONCHFS_FILE_SYSTEM_ABI,
+                    functionName: "getInodeAt",
+                    args: [`0x${cid}`, path],
+                  })
+
+                  console.log({ fdata })
+                  //@ts-ignore
+                  const out: [`0x${string}`, EthInode] = await (
+                    publicClient as any
+                  ).readContract({
+                    address: address as `0x${string}`,
+                    abi: ONCHFS_FILE_SYSTEM_ABI,
+                    functionName: "getInodeAt",
+                    args: [`0x${cid}`, path],
+                  })
+                  console.log({ out })
+                  if (out && (out as any)?.length === 2) {
+                    const cid = out[0].replace("0x", "")
+                    const inode = out[1]
+
+                    // if the contract has answered with a directory
+                    if (inode.inodeType === EthInodeType.DIRECTORY) {
+                      const dir = inode.directory
+                      const files: Record<string, string> = {}
+                      for (let i = 0; i < dir.filenames.length; i++) {
+                        files[dir.filenames[i]] = dir.fileChecksums[i].replace(
+                          "0x",
+                          ""
+                        )
+                      }
+                      return {
+                        cid,
+                        files,
+                      }
+                    } else {
+                      const file = inode.file
+                      // the contract has answered with a file
+                      return {
+                        cid,
+                        chunkPointers: file.chunkChecksums.map(pt =>
+                          pt.replace("0x", "")
+                        ),
+                        metadata: file.metadata.replace("0x", ""),
+                      }
                     }
+                  } else {
+                    throw new Error("wrogn response from contract")
                   }
-                  // else {
-                  //   return {
-                  //     cid: "...",
-                  //     metadata: "...",
-                  //     chunkPointers: [],
-                  //   }
-                  // }
-                },
+                } catch (err) {
+                  console.log(err)
+                  return null
+                }
+              },
               readFile: async (cid: string) => {
                 //@ts-ignore
                 const hexBytesString = await publicClient.readContract({

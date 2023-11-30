@@ -31,6 +31,6 @@ export const DEFAULT_CONTRACTS: Record<BlockchainNetwork, string> = {
   "tezos:NetXdQprcVkpaWU": "KT1Ae7dT1gsLw2tRnUMXSCmEyF74KVkM6LUo",
   // tezos ghostnet
   "tezos:NetXnHfVqm9iesp": "KT1FA8AGGcJha6S6MqfBUiibwTaYhK8u7s9Q",
-  "eip155:1": "0x1c958168beb52bed41bd0c2301ae7bf2cbd0af46",
-  "eip155:5": "0x1c958168beb52bed41bd0c2301ae7bf2cbd0af46",
+  "eip155:1": "0xc3f5ef1a0256b9ceb1452650db72344809bb3a85",
+  "eip155:5": "0xc3f5ef1a0256b9ceb1452650db72344809bb3a85",
 }
