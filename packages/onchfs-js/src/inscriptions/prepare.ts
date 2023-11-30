@@ -148,7 +148,6 @@ export function prepareInscriptions(
           const results = await Promise.allSettled(
             node.chunks.map(chunk => resolver.chunkExists(u8hex(chunk.hash)))
           )
-          console.log(results)
           const chunksToInsert = node.chunks.filter((_, i) => {
             const res = results[i]
             return res.status === "fulfilled" && !res.value
