@@ -38,6 +38,7 @@ export function directoryUploadSummary(
         const progress = fileUploadProgress(N, missingInscriptions)
         files.push({
           path: path + name,
+          inode: N,
           progress,
         })
         global.total += progress.total

@@ -8,6 +8,9 @@ export type FileInode = {
   chunks: FileChunk[]
   cid: Uint8Array
   metadata: Uint8Array
+  source: {
+    content: Uint8Array
+  }
 }
 
 export type DirectoryInode = {
@@ -97,6 +100,11 @@ export interface FileUploadProgress {
    * **Absolute path** of the file from the root of the object uploaded.
    */
   path: string
+
+  /**
+   * The file Inode which is associated to the given file.
+   */
+  inode: FileInode
 
   /**
    * Progress of the upload, includes the progress of the upload of the file
