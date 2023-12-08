@@ -4,8 +4,6 @@ import { chunkBytes } from "./chunks"
 import { FileMetadataEntries } from "@/types/metadata"
 import { encodeMetadata } from "@/metadata/encode"
 import { FileInode, IFile, OnchfsPrepareOptions } from "@/types/files"
-import { u8hex } from "@/utils/uint8"
-import { decodeMetadata } from "@/metadata/decode"
 import { computeFileCid } from "@/cid"
 
 /**
@@ -70,5 +68,8 @@ export function prepareFile(
     cid,
     chunks,
     metadata: metadataEncoded,
+    source: {
+      content: file.content,
+    },
   }
 }
