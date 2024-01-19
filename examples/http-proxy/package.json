@@ -23,7 +23,6 @@
   },
   "devDependencies": {
     "@fxhash/eslint-config": "workspace:*",
-    "@fxhash/prettier-config": "workspace:*",
     "@types/cors": "2.8.13",
     "@types/node": "16.18.38",
     "nodemon": "2.0.22",
