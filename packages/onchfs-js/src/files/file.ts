@@ -6,6 +6,29 @@ import { encodeMetadata } from "@/metadata/encode"
 import { FileInode, IFile, OnchfsPrepareOptions } from "@/types/files"
 import { computeFileCid } from "@/cid"
 
+const MIME_LOOKUP = {
+  vert: "text/plain",
+}
+
+/**
+ * Resolves the MIME type for a given filename.
+ * @param {string} filename - The name of the file.
+ * @returns {string|null} The determined MIME type or null if not found.
+ */
+function resolveMimeType(filename): string | null {
+  let mime = lookupMime(filename)
+  if (!mime) {
+    // fallback to extension lookup
+    const extension = filename.split(".").pop()
+    if (extension && MIME_LOOKUP[extension]) {
+      return MIME_LOOKUP[extension]
+    }
+    // return null if no MIME type is found
+    return null
+  }
+  return mime
+}
+
 /**
  * Computes all the necessary data for the inscription of the file on-chain.
  * Performs the following tasks in order:
@@ -29,14 +52,9 @@ export function prepareFile(
   let metadata: FileMetadataEntries = {}
   let insertionBytes = content
   // we use file extension to get mime type
-  let mime = lookupMime(name)
+  const mime = resolveMimeType(name)
 
-  // if no mime type can be mapped from filename, use magic number
   if (!mime) {
-    // const magicMime = await fileTypeFromBuffer(content)
-    // if (magicMime) {
-    //   metadata["Content-Type"] = magicMime.mime
-    // }
     // if still no mime, we simply do not set the Content-Type in the metadata,
     // and let the browser handle it.
     // We could set it to "application/octet-stream" as RFC2046 states, however
