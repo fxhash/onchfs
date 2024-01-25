@@ -1,7 +1,3 @@
 {
-  "plugins": ["prettier"],
-  "extends": ["@fxhash/eslint-config"],
-  "rules": {
-    "prettier/prettier": "error"
-  }
+  "extends": ["@fxhash/eslint-config"]
 }
