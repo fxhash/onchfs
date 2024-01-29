@@ -121,7 +121,7 @@ While previous projects leave an opiniated footprint on how code data is handled
 ├── style.css
 ├── main.js
 └── libs/
-    ├── fxhash.min.js
+    ├── fxhash.js
     ├── colors.js
     └── processing.min.js
 ```
@@ -131,7 +131,7 @@ While previous projects leave an opiniated footprint on how code data is handled
 ```html
 <html>
   <head>
-    <script src="./libs/fxhash.min.js"></script>
+    <script src="./libs/fxhash.js"></script>
     <script src="./libs/colors.js"></script>
     <script src="./libs/processing.min.js"></script>
     <script src="./main.js"></script>
@@ -157,7 +157,7 @@ Onchfs also handles libraries elegantly, and so naturally by its design. Looking
 ├── style.css                 -> 0xaeaeaed2...
 ├── main.js                   -> 0xa2a2a2a9...
 └── libs/                     -> 0xd5d5d5d5...
-    ├── fxhash.min.js             -> 0xc6c6c6c6...
+    ├── fxhash.js             -> 0xc6c6c6c6...
     ├── colors.js             -> 0xabcdef12...
     └── processing.min.js     -> 0x01010101...
 
@@ -169,7 +169,7 @@ inscriptions:
 + ...
 + DIRECTORY libs (0xd5d5d5d5...)
   {
-    "fxhash.min.js": 0xc6c6c6c6...,
+    "fxhash.js": 0xc6c6c6c6...,
     "colors.js": 0xabcdef12...,
     "processing.min.js": 0x01010101...,
   }
@@ -191,7 +191,7 @@ inscriptions:
 + ...
 + DIRECTORY libs (0xd5d5d5d5...)
   {
-    "fxhash.min.js": 0xc6c6c6c6...,
+    "fxhash.js": 0xc6c6c6c6...,
     "colors.js": 0xabcdef12...,
     "processing.min.js": 0x01010101...,  <- points to existing resource
   }
