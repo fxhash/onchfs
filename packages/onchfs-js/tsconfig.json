@@ -19,9 +19,9 @@
     "noImplicitThis": false,
     "strictNullChecks": false,
     "paths": {
-      "@/*": ["./src/*"]
-    }
+      "@/*": ["./src/*"],
+    },
   },
   "include": ["src/**/*"],
-  "exclude": ["test/**/*"]
+  "exclude": ["test/**/*"],
 }
