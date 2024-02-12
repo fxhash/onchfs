@@ -23,7 +23,7 @@
     "node-dir": "0.1.17",
     "onchfs": "workspace:*",
     "tslib": "2.6.0",
-    "viem": "1.14.0"
+    "viem": "1.21.4"
   },
   "devDependencies": {
     "@types/node": "18.7.13",
