@@ -16,6 +16,9 @@ export const blockchainNetworks = [
   `tezos:${CHAIN_IDS.tezos.ghostnet}`,
   `eip155:${CHAIN_IDS.eip155.mainnet}`,
   `eip155:${CHAIN_IDS.eip155.goerli}`,
+  `eip155:${CHAIN_IDS.eip155.sepolia}`,
+  `eip155:${CHAIN_IDS.eip155.baseMainnet}`,
+  `eip155:${CHAIN_IDS.eip155.baseSepolia}`,
 ] as const
 export type BlockchainNetwork = (typeof blockchainNetworks)[number]
 
