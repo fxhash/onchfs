@@ -21,16 +21,26 @@ export const CHAIN_IDS = {
   eip155: {
     mainnet: "1",
     goerli: "5",
+    sepolia: "11155111",
+    baseMainnet: "8453",
+    baseSepolia: "84532",
   },
 } as const
 
-// TODO: insert true values here.
 // A naive map of the "official" onchfs Smart Contracts.
 export const DEFAULT_CONTRACTS: Record<BlockchainNetwork, string> = {
   // tezos mainnet
   "tezos:NetXdQprcVkpaWU": "KT1Ae7dT1gsLw2tRnUMXSCmEyF74KVkM6LUo",
   // tezos ghostnet
   "tezos:NetXnHfVqm9iesp": "KT1FA8AGGcJha6S6MqfBUiibwTaYhK8u7s9Q",
+  // eth mainnet
   "eip155:1": "0x9e0f2864c6f125bbf599df6ca6e6c3774c5b2e04",
-  "eip155:5": "0x9e0f2864c6f125bbf599df6ca6e6c3774c5b2e04",
+  // eth goerli
+  "eip155:5": "0xc3f5ef1a0256b9ceb1452650db72344809bb3a85",
+  // eth sepolia
+  "eip155:11155111": "0x4f555d39e89f6d768f75831d610b3940fa94c6b1",
+  // base mainnet
+  "eip155:8453": "0x2983008f292a43f208bba0275afd7e9b3d39af3b",
+  // base sepolia
+  "eip155:84532": "0x3fb48e03291b2490f939c961a1ad088437129f71",
 }
