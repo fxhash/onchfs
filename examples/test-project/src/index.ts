@@ -9,7 +9,7 @@ import { bytesToHex, createPublicClient, createWalletClient, http } from "viem"
 import { privateKeyToAccount } from "viem/accounts"
 import { goerli } from "viem/chains"
 import { config } from "@fxhash/config"
-import { ONCHFS_FILE_SYSTEM_ABI, ONCHFS_CONTENT_STORE } from "@fxhash/eth-sdk"
+import { ONCHFS_FILE_SYSTEM_ABI, ONCHFS_CONTENT_STORE } from "@fxhash/eth"
 
 async function sleep(time: number) {
   return new Promise(resolve => setTimeout(resolve, time))
