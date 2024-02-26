@@ -11,6 +11,9 @@ export const chainAliases = {
   "tezos:NetXnHfVqm9iesp": ["tezos:ghostnet"] as const,
   "eip155:1": ["ethereum:mainnet", "eth:mainnet"] as const,
   "eip155:5": ["ethereum:goerli", "eth:goerli"] as const,
+  "eip155:11155111": ["ethereum:sepolia", "eth:sepolia"] as const,
+  "eip155:84532": ["ethereum:baseSepolia", "eth:baseSepolia"] as const,
+  "eip155:8453": ["ethereum:baseMainnet", "eth:baseMainnet"] as const,
 } as const
 export type ChainAliases =
   | BlockchainNetwork
