@@ -6,13 +6,13 @@
     "rootDir": "src",
     "outDir": "dist",
     "paths": {
-      "@/*": ["./src/*"],
+      "@/*": ["./src/*"]
     },
     "target": "es2022",
     "lib": ["es2022", "DOM"],
     // FIXME: resolve type errors when removing the following lines
     "strict": false,
     "noUnusedParameters": false,
-    "noUnusedLocals": false,
-  },
+    "noUnusedLocals": false
+  }
 }
