@@ -51,6 +51,15 @@ const ResolutionErrors: Record<ProxyResolutionStatusErrors, string> = {
   [ProxyResolutionStatusErrors.INTERNAL_SERVER_ERROR]: "Internal Server Error",
 }
 
+function shuffle<T>(array: T[]): T[] {
+  const out = [...array]
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[out[i], out[j]] = [out[j], out[i]]
+  }
+  return out
+}
+
 /**
  * Creates a basic proxy resolver using a declarative list of blockchain
  * resolvers (network, RPC addresses, etc...). This function is a wrapper
@@ -142,41 +151,62 @@ export function createProxyResolver(controllers: BlockchainResolverCtrl[]) {
             }
             return {
               getInodeAtPath: async (cid, path) => {
-                const kt = await KT(address)
-                const out = await kt.contractViews
-                  .get_inode_at({
-                    cid,
-                    path,
-                  })
-                  .executeView({
-                    viewCaller: address,
-                  })
+                for (const rpc of shuffle(h.rpcs)) {
+                  Tezos.setRpcProvider(rpc)
+                  try {
+                    const kt = await KT(address)
+                    const out = await kt.contractViews
+                      .get_inode_at({
+                        cid,
+                        path,
+                      })
+                      .executeView({
+                        viewCaller: address,
+                      })
 
-                // if the contract has answered with a directory
-                if (out.inode.directory) {
-                  const files: Record<string, string> = {}
-                  for (const [name, pointer] of out.inode.directory.entries()) {
-                    files[name] = pointer
-                  }
-                  return {
-                    cid: out.cid,
-                    files,
-                  }
-                } else {
-                  // the contract has answered with a file
-                  return {
-                    cid: out.cid,
-                    chunkPointers: out.inode.file.chunk_pointers,
-                    metadata: out.inode.file.metadata,
+                    // if the contract has answered with a directory
+                    if (out.inode.directory) {
+                      const files: Record<string, string> = {}
+                      for (const [
+                        name,
+                        pointer,
+                      ] of out.inode.directory.entries()) {
+                        files[name] = pointer
+                      }
+                      return {
+                        cid: out.cid,
+                        files,
+                      }
+                    } else {
+                      // the contract has answered with a file
+                      return {
+                        cid: out.cid,
+                        chunkPointers: out.inode.file.chunk_pointers,
+                        metadata: out.inode.file.metadata,
+                      }
+                    }
+                  } catch (e) {
+                    console.error(`RPC ${rpc} failed: ${e}, trying next...`)
                   }
                 }
+                throw new Error("all RPCs failed")
               },
               readFile: async cid => {
-                const kt = await KT(address)
-                const res = await kt.contractViews.read_file(cid).executeView({
-                  viewCaller: address,
-                })
-                return hexStringToBytes(res.content)
+                for (const rpc of shuffle(h.rpcs)) {
+                  Tezos.setRpcProvider(rpc)
+                  try {
+                    const kt = await KT(address)
+                    const res = await kt.contractViews
+                      .read_file(cid)
+                      .executeView({
+                        viewCaller: address,
+                      })
+                    return hexStringToBytes(res.content)
+                  } catch (e) {
+                    console.error(`RPC ${rpc} failed: ${e}, trying next...`)
+                  }
+                }
+                throw new Error("all RPCs failed")
               },
             }
           },
