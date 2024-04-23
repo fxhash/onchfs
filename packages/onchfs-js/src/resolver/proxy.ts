@@ -47,15 +47,6 @@ const ResolutionErrors: Record<ProxyResolutionStatusErrors, string> = {
   [ProxyResolutionStatusErrors.INTERNAL_SERVER_ERROR]: "Internal Server Error",
 }
 
-function shuffle<T>(array: T[]): T[] {
-  const out = [...array]
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[out[i], out[j]] = [out[j], out[i]]
-  }
-  return out
-}
-
 /**
  * Creates a basic proxy resolver using a declarative list of blockchain
  * resolvers (network, RPC addresses, etc...). This function is a wrapper
