@@ -27,7 +27,7 @@
     "js-sha3": "0.9.1",
     "mime-types": "2.1.35",
     "pako": "2.1.0",
-    "viem": "1.21.4"
+    "viem": "2.9.2"
   },
   "devDependencies": {
     "@fxhash/tsconfig": "workspace:*",

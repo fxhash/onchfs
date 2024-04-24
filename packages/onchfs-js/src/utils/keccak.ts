@@ -1,4 +1,5 @@
-import { keccak256 } from "js-sha3"
+import sha3 from "js-sha3"
+const { keccak256 } = sha3
 
 /**
  * Hashes some bytes with keccak256. Simple typed wrapper to ease implementation
