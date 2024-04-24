@@ -28,11 +28,6 @@ import {
   parseSchema,
   parseSchemaSpecificPart,
 } from "@/uri/parse"
-import {
-  TezosToolkit,
-  ContractAbstraction,
-  ContractProvider,
-} from "@taquito/taquito"
 import { DEFAULT_CONTRACTS } from "@/config"
 import {
   createPublicClient,
@@ -43,6 +38,7 @@ import {
 } from "viem"
 import { ONCHFS_FILE_SYSTEM_ABI } from "@/utils/abi"
 import { EthInode, EthInodeType } from "@/types/eth"
+import { TezosService } from "@/services/tezos.service"
 
 const ResolutionErrors: Record<ProxyResolutionStatusErrors, string> = {
   [ProxyResolutionStatusErrors.BAD_REQUEST]: "Bad Request",
@@ -118,17 +114,7 @@ export function createProxyResolver(controllers: BlockchainResolverCtrl[]) {
 
     switch (blockchain) {
       case "tezos": {
-        const Tezos = new TezosToolkit(h.rpcs[0])
-
-        const KTs: Record<string, ContractAbstraction<ContractProvider>> = {}
-
-        async function KT(address: string) {
-          if (KTs[address]) {
-            return KTs[address]
-          }
-          KTs[address] = await Tezos.contract.at(address)
-          return KTs[address]
-        }
+        const tezos = new TezosService(h.rpcs)
 
         return {
           blockchain: h.blockchain,
@@ -142,15 +128,16 @@ export function createProxyResolver(controllers: BlockchainResolverCtrl[]) {
             }
             return {
               getInodeAtPath: async (cid, path) => {
-                const kt = await KT(address)
-                const out = await kt.contractViews
-                  .get_inode_at({
-                    cid,
-                    path,
-                  })
-                  .executeView({
-                    viewCaller: address,
-                  })
+                const out = await tezos.call(address, kt =>
+                  kt.contractViews
+                    .get_inode_at({
+                      cid,
+                      path,
+                    })
+                    .executeView({
+                      viewCaller: address,
+                    })
+                )
 
                 // if the contract has answered with a directory
                 if (out.inode.directory) {
@@ -172,10 +159,11 @@ export function createProxyResolver(controllers: BlockchainResolverCtrl[]) {
                 }
               },
               readFile: async cid => {
-                const kt = await KT(address)
-                const res = await kt.contractViews.read_file(cid).executeView({
-                  viewCaller: address,
-                })
+                const res = await tezos.call(address, kt =>
+                  kt.contractViews.read_file(cid).executeView({
+                    viewCaller: address,
+                  })
+                )
                 return hexStringToBytes(res.content)
               },
             }
