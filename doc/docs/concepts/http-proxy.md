@@ -58,7 +58,7 @@ https://proxy-url.com/<goes-here>
                       ━━━━━┻━━━━━
 ```
 
-:::info URI<->Proxy URL compatibility
+:::info[URI Proxy to URL compatibility]
 Because of the design of its format, the _schema-specific part_ is fully compatible with URLs. Onchfs URIs also support URL path, search and fragment components, enabling as many use-cases as there are on the web for HTML documents. [Read more about the URI specification here](./uris)
 :::
 

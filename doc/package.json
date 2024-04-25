@@ -19,7 +19,6 @@
     "@docusaurus/preset-classic": "3.2.1",
     "@docusaurus/theme-mermaid": "3.2.1",
     "@mdx-js/react": "3.0.1",
-    "@types/node": "20.6.2",
     "clsx": "2.1.1",
     "prism-react-renderer": "2.3.1",
     "react": "18.2.0",
@@ -27,9 +26,9 @@
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "3.2.1",
-    "@docusaurus/types": "3.0.0",
     "@docusaurus/tsconfig": "3.2.1",
-    "typescript": "5.4.5"
+    "@docusaurus/types": "3.2.1",
+    "typescript": "5.3.3"
   },
   "browserslist": {
     "production": [
@@ -38,12 +37,12 @@
       "not op_mini all"
     ],
     "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
+      "last 3 chrome version",
+      "last 3 firefox version",
+      "last 5 safari version"
     ]
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=18.0"
   }
 }
