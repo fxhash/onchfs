@@ -1,25 +1,7 @@
 {
   "name": "onchfs",
   "version": "0.0.0",
-  "exports": {
-    ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
-    }
-  },
-  "main": "./dist/index.mjs",
   "browser": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "license": "MIT",
-  "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
-    "test": "jest"
-  },
   "dependencies": {
     "@taquito/taquito": "17.3.1",
     "file-type": "18.5.0",
@@ -30,11 +12,11 @@
     "viem": "2.13.10"
   },
   "devDependencies": {
-    "@fxhash/tsconfig": "workspace:*",
     "@babel/core": "7.22.19",
     "@babel/preset-env": "7.22.15",
     "@babel/preset-typescript": "7.22.15",
     "@esbuild-plugins/node-modules-polyfill": "0.2.2",
+    "@fxhash/tsconfig": "workspace:*",
     "@types/jest": "29.5.4",
     "@types/mime-types": "2.1.1",
     "@types/node": "20.6.3",
@@ -46,5 +28,23 @@
     "tslib": "2.6.0",
     "tsup": "8.0.1",
     "typescript": "5.3.3"
-  }
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "main": "./dist/index.mjs",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "jest"
+  },
+  "types": "./dist/index.d.ts"
 }

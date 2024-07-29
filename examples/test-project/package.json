@@ -1,18 +1,6 @@
 {
   "name": "onchfs-tests",
   "version": "1.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist/**/*"
-  ],
-  "license": "MIT",
-  "scripts": {
-    "prod": "tsc && node dist/index.js",
-    "build": "tsup",
-    "dev": "tsup --watch --on-success 'node dist/index.js'",
-    "start": "nodemon --watch \"src/**/*.ts\" --exec \"ts-node --transpile-only\" src/index.ts"
-  },
   "dependencies": {
     "@fxhash/config": "workspace:*",
     "@fxhash/eth": "workspace:*",
@@ -32,5 +20,17 @@
     "tsc-alias": "1.8.5",
     "tsup": "7.2.0",
     "typescript": "5.3.3"
-  }
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch --on-success 'node dist/index.js'",
+    "prod": "tsc && node dist/index.js",
+    "start": "nodemon --watch \"src/**/*.ts\" --exec \"ts-node --transpile-only\" src/index.ts"
+  },
+  "types": "dist/index.d.ts"
 }
