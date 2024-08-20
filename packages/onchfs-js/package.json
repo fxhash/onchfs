@@ -9,7 +9,7 @@
     "js-sha3": "0.9.1",
     "mime-types": "2.1.35",
     "pako": "2.1.0",
-    "viem": "2.13.10"
+    "viem": "2.19.4"
   },
   "devDependencies": {
     "@babel/core": "7.22.19",
