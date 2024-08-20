@@ -1,7 +1,6 @@
 {
   "name": "onchfs",
   "version": "0.0.0",
-  "browser": "./dist/index.js",
   "dependencies": {
     "@taquito/taquito": "17.3.1",
     "file-type": "18.5.0",
@@ -32,19 +31,21 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     }
   },
   "files": [
     "dist"
   ],
   "license": "MIT",
-  "main": "./dist/index.mjs",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "test": "jest"
   },
+  "type": "module",
   "types": "./dist/index.d.ts"
 }
