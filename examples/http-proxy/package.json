@@ -23,11 +23,11 @@
   "license": "MIT",
   "main": "index.js",
   "private": true,
-  "type": "module",
   "scripts": {
     "build": "tsc",
     "dev": "nodemon --watch \"src/**/*.ts\" --exec \"ts-node --transpile-only\" src/index.ts",
     "prod": "tsc && node dist/index.js",
     "start": "nodemon --watch \"src/**/*.ts\" --exec \"ts-node --transpile-only\" src/index.ts"
-  }
+  },
+  "type": "module"
 }
