@@ -2,15 +2,15 @@
   "name": "onchfs-tests",
   "version": "1.0.0",
   "dependencies": {
-    "@fxhash/config": "workspace:*",
-    "@fxhash/eth": "workspace:*",
     "@taquito/signer": "17.3.0",
     "@taquito/taquito": "17.3.0",
     "axios": "1.5.1",
     "node-dir": "0.1.17",
-    "onchfs": "workspace:*",
     "tslib": "2.6.0",
-    "viem": "2.19.4"
+    "viem": "2.19.4",
+    "onchfs": "0.0.0",
+    "@fxhash/config": "0.0.9",
+    "@fxhash/eth": "0.0.9"
   },
   "devDependencies": {
     "@types/node": "18.7.13",
@@ -26,11 +26,11 @@
   ],
   "license": "MIT",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch --on-success 'node dist/index.js'",
     "prod": "tsc && node dist/index.js",
     "start": "nodemon --watch \"src/**/*.ts\" --exec \"ts-node --transpile-only\" src/index.ts"
-  },
-  "types": "dist/index.d.ts"
+  }
 }

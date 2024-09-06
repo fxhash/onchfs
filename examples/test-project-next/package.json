@@ -5,10 +5,10 @@
     "@taquito/signer": "17.3.0",
     "@taquito/taquito": "17.3.0",
     "next": "13.4.19",
-    "onchfs": "workspace:*",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "typescript": "5.2.2"
+    "typescript": "5.2.2",
+    "onchfs": "0.0.0"
   },
   "devDependencies": {
     "@types/node": "20.5.9",

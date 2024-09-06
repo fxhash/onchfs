@@ -15,7 +15,6 @@
     "@babel/preset-env": "7.22.15",
     "@babel/preset-typescript": "7.22.15",
     "@esbuild-plugins/node-modules-polyfill": "0.2.2",
-    "@fxhash/tsconfig": "workspace:*",
     "@types/jest": "29.5.4",
     "@types/mime-types": "2.1.1",
     "@types/node": "20.6.3",
@@ -26,7 +25,8 @@
     "tsc-alias": "1.8.5",
     "tslib": "2.6.0",
     "tsup": "8.0.1",
-    "typescript": "5.3.3"
+    "typescript": "5.3.3",
+    "@fxhash/tsconfig": "1.0.0"
   },
   "exports": {
     ".": {
@@ -41,11 +41,11 @@
   "license": "MIT",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
+  "type": "module",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "test": "jest"
-  },
-  "type": "module",
-  "types": "./dist/index.d.ts"
+  }
 }
