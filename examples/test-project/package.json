@@ -1,31 +1,36 @@
 {
   "name": "onchfs-tests",
   "version": "1.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@taquito/signer": "17.3.0",
+    "@taquito/taquito": "17.3.0",
+    "axios": "1.5.1",
+    "node-dir": "0.1.17",
+    "tslib": "2.6.0",
+    "viem": "2.19.4",
+    "onchfs": "0.0.0",
+    "@fxhash/config": "0.0.9",
+    "@fxhash/eth": "0.0.9"
+  },
+  "devDependencies": {
+    "@types/node": "18.7.13",
+    "@types/node-dir": "0.0.34",
+    "nodemon": "2.0.13",
+    "ts-node": "10.9.1",
+    "tsc-alias": "1.8.5",
+    "tsup": "7.2.0",
+    "typescript": "5.3.3"
+  },
   "files": [
     "dist/**/*"
   ],
   "license": "MIT",
-  "dependencies": {
-    "@taquito/signer": "17.3.0",
-    "@taquito/taquito": "17.3.0",
-    "@types/node-dir": "0.0.34",
-    "node-dir": "0.1.17",
-    "tslib": "2.6.0",
-    "onchfs": "1.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "18.7.13",
-    "nodemon": "2.0.13",
-    "ts-node": "10.9.1",
-    "tsc-alias": "1.8.5",
-    "typescript": "4.9.5"
-  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "clean": "rm -rf dist",
-    "build": "npm run clean && tsc --declaration",
-    "dev": "nodemon --watch \"src/**/*.ts\" --exec \"ts-node --transpile-only\" src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsup",
+    "dev": "tsup --watch --on-success 'node dist/index.js'",
+    "prod": "tsc && node dist/index.js",
+    "start": "nodemon --watch \"src/**/*.ts\" --exec \"ts-node --transpile-only\" src/index.ts"
   }
 }

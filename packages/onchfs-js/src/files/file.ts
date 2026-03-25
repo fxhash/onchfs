@@ -1,12 +1,33 @@
 import { gzip } from "pako"
-import { DEFAULT_CHUNK_SIZE, INODE_BYTE_IDENTIFIER } from "@/config"
 import { lookup as lookupMime } from "mime-types"
 import { chunkBytes } from "./chunks"
-import { concatUint8Arrays, keccak } from "@/utils"
 import { FileMetadataEntries } from "@/types/metadata"
 import { encodeMetadata } from "@/metadata/encode"
-import { FileInode, IFile } from "@/types/files"
-// import { fileTypeFromBuffer } from "file-type"
+import { FileInode, IFile, OnchfsPrepareOptions } from "@/types/files"
+import { computeFileCid } from "@/cid"
+
+const MIME_LOOKUP = {
+  vert: "text/plain",
+}
+
+/**
+ * Resolves the MIME type for a given filename.
+ * @param {string} filename - The name of the file.
+ * @returns {string|null} The determined MIME type or null if not found.
+ */
+function resolveMimeType(filename): string | null {
+  let mime = lookupMime(filename)
+  if (!mime) {
+    // fallback to extension lookup
+    const extension = filename.split(".").pop()
+    if (extension && MIME_LOOKUP[extension]) {
+      return MIME_LOOKUP[extension]
+    }
+    // return null if no MIME type is found
+    return null
+  }
+  return mime
+}
 
 /**
  * Computes all the necessary data for the inscription of the file on-chain.
@@ -25,19 +46,15 @@ import { FileInode, IFile } from "@/types/files"
  */
 export function prepareFile(
   file: IFile,
-  chunkSize: number = DEFAULT_CHUNK_SIZE
+  options: Required<OnchfsPrepareOptions>
 ): FileInode {
   const { path: name, content } = file
   let metadata: FileMetadataEntries = {}
   let insertionBytes = content
   // we use file extension to get mime type
-  let mime = lookupMime(name)
-  // if no mime type can be mapped from filename, use magic number
+  const mime = resolveMimeType(name)
+
   if (!mime) {
-    // const magicMime = await fileTypeFromBuffer(content)
-    // if (magicMime) {
-    //   metadata["Content-Type"] = magicMime.mime
-    // }
     // if still no mime, we simply do not set the Content-Type in the metadata,
     // and let the browser handle it.
     // We could set it to "application/octet-stream" as RFC2046 states, however
@@ -54,16 +71,14 @@ export function prepareFile(
     metadata["Content-Encoding"] = "gzip"
   }
 
-  // chunk the file
-  const chunks = chunkBytes(insertionBytes, chunkSize)
-  // encode the metadata
+  // chunk the file, encode its metadata and compute its CID based on provided
+  // hashing strategy
+  const chunks = chunkBytes(insertionBytes, options.chunkSize)
   const metadataEncoded = encodeMetadata(metadata)
-  // compute the file unique identifier, following the onchfs specifications:
-  // keccak( 0x01 , keccak( content ), keccak( metadata ) )
-  const contentHash = keccak(insertionBytes)
-  const metadataHash = keccak(metadataEncoded)
-  const cid = keccak(
-    concatUint8Arrays(INODE_BYTE_IDENTIFIER.FILE, contentHash, metadataHash)
+  const cid = computeFileCid(
+    chunks,
+    metadataEncoded,
+    options.fileHashingStrategy
   )
 
   return {
@@ -71,5 +86,8 @@ export function prepareFile(
     cid,
     chunks,
     metadata: metadataEncoded,
+    source: {
+      content: file.content,
+    },
   }
 }

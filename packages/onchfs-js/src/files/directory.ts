@@ -4,6 +4,7 @@ import {
   DirectoryInode,
   IFile,
   INode,
+  OnchfsPrepareOptions,
   PrepareDirectoryDir,
   PrepareDirectoryFile,
   PrepareDirectoryNode,
@@ -147,7 +148,7 @@ export function buildDirectoryGraph(
  */
 export function prepareDirectory(
   files: IFile[],
-  chunkSize: number = DEFAULT_CHUNK_SIZE
+  options: Required<OnchfsPrepareOptions>
 ): DirectoryInode {
   const [graph, leaves] = buildDirectoryGraph(files)
 
@@ -165,7 +166,7 @@ export function prepareDirectory(
             path: node.name,
             content: node.content,
           },
-          chunkSize
+          options
         )
       } else if (node.type === "directory") {
         // compute the inode associated with the directory

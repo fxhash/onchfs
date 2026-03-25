@@ -37,7 +37,7 @@ async function main() {
 
   // (speed-up demo): this implements a cache retrieval based on the req.path,
   // which is rather trivial. As explained at the top of this file, in-memory
-  // cache isn't ideal, although east to implement
+  // cache isn't ideal, although easy to implement
   app.use(async (req, res, next) => {
     if (inMemoryCache[req.path]) {
       console.log(`⚡️ cache hit for ${req.path}`)
