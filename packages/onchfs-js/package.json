@@ -1,0 +1,51 @@
+{
+  "name": "onchfs",
+  "version": "0.1.0",
+  "dependencies": {
+    "@taquito/taquito": "17.3.1",
+    "file-type": "18.5.0",
+    "hpack.js": "2.1.6",
+    "js-sha3": "0.9.1",
+    "mime-types": "2.1.35",
+    "pako": "2.1.0",
+    "viem": "2.19.4"
+  },
+  "devDependencies": {
+    "@babel/core": "7.22.19",
+    "@babel/preset-env": "7.22.15",
+    "@babel/preset-typescript": "7.22.15",
+    "@esbuild-plugins/node-modules-polyfill": "0.2.2",
+    "@types/jest": "29.5.4",
+    "@types/mime-types": "2.1.1",
+    "@types/node": "20.6.3",
+    "@types/pako": "2.0.0",
+    "babel-jest": "29.7.0",
+    "jest": "29.6.4",
+    "ts-jest": "29.1.1",
+    "tsc-alias": "1.8.5",
+    "tslib": "2.6.0",
+    "tsup": "8.0.1",
+    "typescript": "5.3.3",
+    "@fxhash/tsconfig": "0.0.3"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "jest"
+  }
+}
