@@ -15,19 +15,30 @@ import {
   ProxyResolutionStatusRedirect,
   ProxyResolutionStatusSuccess,
   Resolver,
+  chainAliases,
 } from "@/types/resolver"
-import { URIAuthority, URISchemaSpecificParts } from "@/types/uri"
+import {
+  BlockchainNetwork,
+  URIAuthority,
+  URISchemaSpecificParts,
+  blockchainNetworks,
+} from "@/types/uri"
 import {
   parseAuthority,
   parseSchema,
   parseSchemaSpecificPart,
 } from "@/uri/parse"
-import {
-  TezosToolkit,
-  ContractAbstraction,
-  ContractProvider,
-} from "@taquito/taquito"
 import { DEFAULT_CONTRACTS } from "@/config"
+import {
+  createPublicClient,
+  encodeFunctionData,
+  fallback,
+  hexToBytes,
+  http,
+} from "viem"
+import { ONCHFS_FILE_SYSTEM_ABI } from "@/utils/abi"
+import { EthInode, EthInodeType } from "@/types/eth"
+import { TezosService } from "@/services/tezos.service"
 
 const ResolutionErrors: Record<ProxyResolutionStatusErrors, string> = {
   [ProxyResolutionStatusErrors.BAD_REQUEST]: "Bad Request",
@@ -82,27 +93,34 @@ const ResolutionErrors: Record<ProxyResolutionStatusErrors, string> = {
 export function createProxyResolver(controllers: BlockchainResolverCtrl[]) {
   // add default cain contract if missing
   const blockchainResolvers: BlockchainResolver[] = controllers.map(h => {
-    const blockchain = h.blockchain.split(":")[0] as "tezos" | "ethereum"
+    // find the base chain id by resolving aliases if needed
+    let baseChainId: BlockchainNetwork
+    if ((blockchainNetworks as readonly string[]).includes(h.blockchain)) {
+      baseChainId = h.blockchain as BlockchainNetwork
+    } else {
+      for (const [base, aliases] of Object.entries(chainAliases)) {
+        if ((aliases as readonly string[]).includes(h.blockchain)) {
+          baseChainId = base as BlockchainNetwork
+        }
+      }
+      if (!baseChainId) {
+        throw new Error(
+          `The given blockchain identifier "${h.blockchain}" is unknown, it cannot be resvoled by this resolver`
+        )
+      }
+    }
+
+    const blockchain = baseChainId.split(":")[0] as "tezos" | "eip155"
 
     switch (blockchain) {
       case "tezos": {
-        const Tezos = new TezosToolkit(h.rpcs[0])
-
-        const KTs: Record<string, ContractAbstraction<ContractProvider>> = {}
-
-        async function KT(address: string) {
-          if (KTs[address]) {
-            return KTs[address]
-          }
-          KTs[address] = await Tezos.contract.at(address)
-          return KTs[address]
-        }
+        const tezos = new TezosService(h.rpcs)
 
         return {
           blockchain: h.blockchain,
           resolverWithContract: (address?: string) => {
             // default blockchain address if not specified
-            address = address || DEFAULT_CONTRACTS[h.blockchain]
+            address = address || DEFAULT_CONTRACTS[baseChainId]
             if (!address) {
               throw new Error(
                 `no contract address was found; neither can it be inferred from the context (${h.blockchain}) nor has it been provided during resolution.`
@@ -110,15 +128,16 @@ export function createProxyResolver(controllers: BlockchainResolverCtrl[]) {
             }
             return {
               getInodeAtPath: async (cid, path) => {
-                const kt = await KT(address)
-                const out = await kt.contractViews
-                  .get_inode_at({
-                    cid,
-                    path,
-                  })
-                  .executeView({
-                    viewCaller: "KT1Uktxf9dgGga6DRRNbGEDepxFGTwNtTg4y",
-                  })
+                const out = await tezos.call(address, kt =>
+                  kt.contractViews
+                    .get_inode_at({
+                      cid,
+                      path,
+                    })
+                    .executeView({
+                      viewCaller: address,
+                    })
+                )
 
                 // if the contract has answered with a directory
                 if (out.inode.directory) {
@@ -140,18 +159,93 @@ export function createProxyResolver(controllers: BlockchainResolverCtrl[]) {
                 }
               },
               readFile: async cid => {
-                const kt = await KT(address)
-                const res = await kt.contractViews.read_file(cid).executeView({
-                  viewCaller: "KT1Uktxf9dgGga6DRRNbGEDepxFGTwNtTg4y",
-                })
+                const res = await tezos.call(address, kt =>
+                  kt.contractViews.read_file(cid).executeView({
+                    viewCaller: address,
+                  })
+                )
                 return hexStringToBytes(res.content)
               },
             }
           },
         }
       }
-      case "ethereum": {
-        throw new Error("Implement eth resolver!")
+      case "eip155": {
+        const publicClient = createPublicClient({
+          transport: fallback(h.rpcs.map(rpc => http(rpc))),
+        })
+        return {
+          blockchain: h.blockchain,
+          resolverWithContract: (address?: string) => {
+            // default blockchain address if not specified
+            address = address || DEFAULT_CONTRACTS[baseChainId]
+            if (!address) {
+              throw new Error(
+                `no contract address was found; neither can it be inferred from the context (${h.blockchain}) nor has it been provided during resolution.`
+              )
+            }
+
+            return {
+              getInodeAtPath: async (cid: string, path: string[]) => {
+                try {
+                  //@ts-ignore
+                  const out: [`0x${string}`, EthInode] = await (
+                    publicClient as any
+                  ).readContract({
+                    address: address as `0x${string}`,
+                    abi: ONCHFS_FILE_SYSTEM_ABI,
+                    functionName: "getInodeAt",
+                    args: [`0x${cid}`, path],
+                  })
+                  if (out && (out as any)?.length === 2) {
+                    const cid = out[0].replace("0x", "")
+                    const inode = out[1]
+
+                    // if the contract has answered with a directory
+                    if (inode.inodeType === EthInodeType.DIRECTORY) {
+                      const dir = inode.directory
+                      const files: Record<string, string> = {}
+                      for (let i = 0; i < dir.filenames.length; i++) {
+                        files[dir.filenames[i]] = dir.fileChecksums[i].replace(
+                          "0x",
+                          ""
+                        )
+                      }
+                      return {
+                        cid,
+                        files,
+                      }
+                    } else {
+                      const file = inode.file
+                      // the contract has answered with a file
+                      return {
+                        cid,
+                        chunkPointers: file.chunkChecksums.map(pt =>
+                          pt.replace("0x", "")
+                        ),
+                        metadata: file.metadata.replace("0x", ""),
+                      }
+                    }
+                  } else {
+                    throw new Error("wrogn response from contract")
+                  }
+                } catch (err) {
+                  return null
+                }
+              },
+              readFile: async (cid: string) => {
+                //@ts-ignore
+                const hexBytesString = await publicClient.readContract({
+                  address: address as `0x${string}`,
+                  abi: ONCHFS_FILE_SYSTEM_ABI,
+                  functionName: "readFile",
+                  args: [`0x${cid}`],
+                })
+                return hexToBytes(hexBytesString as any)
+              },
+            }
+          },
+        }
       }
     }
   })
@@ -186,43 +280,47 @@ export function createProxyResolver(controllers: BlockchainResolverCtrl[]) {
       const resolvers = orderedResolversFromAuthority(authority)
       // try finding the resource on every resolver
       let res: InodeNativeFS | null = null
-      for (const resolver of resolvers) {
-        try {
-          res = await resolver
-            .resolverWithContract(authority?.contract)
-            .getInodeAtPath(cid, path)
-          break
-        } catch (err) {
-          continue
-        }
-      }
-
-      if (res) return res
-      else
+      try {
+        res = await Promise.any(
+          resolvers.map(async resolver => {
+            const resp = await resolver
+              .resolverWithContract(authority?.contract)
+              .getInodeAtPath(cid, path)
+            if (resp) return resp
+            throw Error("file not found")
+          })
+        )
+        if (res) return res
+        throw null
+      } catch (err) {
+        console.log(err)
         throw new Error(
           "searched all available blockchains, resource not found."
         )
+      }
     },
     async readFile(cid, chunkPointers, authority) {
       const resolvers = orderedResolversFromAuthority(authority)
       // try finding the resource on every resolver
       let res: string | Uint8Array | null = null
-      for (const resolver of resolvers) {
-        try {
-          res = await resolver
-            .resolverWithContract(authority?.contract)
-            .readFile(cid, chunkPointers)
-          break
-        } catch (err) {
-          continue
-        }
-      }
-
-      if (res) return res
-      else
+      try {
+        res = await Promise.any(
+          resolvers.map(async resolver => {
+            const resp = await resolver
+              .resolverWithContract(authority?.contract)
+              .readFile(cid, chunkPointers)
+            if (resp) return resp
+            throw Error("file not found")
+          })
+        )
+        if (res) return res
+        throw null
+      } catch (err) {
+        console.log(err)
         throw new Error(
           "searched all available blockchains, resource not found."
         )
+      }
     },
   })
 }

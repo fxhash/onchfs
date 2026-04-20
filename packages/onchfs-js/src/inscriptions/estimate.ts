@@ -1,4 +1,8 @@
-import { Inscription } from "@/types/inscriptions"
+import {
+  Inscription,
+  InscriptionDirectory,
+  InscriptionFile,
+} from "@/types/inscriptions"
 
 /**
  * Compute the number of bytes an inscription will take on the storage.
