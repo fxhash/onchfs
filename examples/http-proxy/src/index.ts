@@ -1,5 +1,5 @@
 import express from "express"
-import Onchfs, { ProxyResolutionResponse } from "onchfs"
+import Onchfs, { type ProxyResolutionResponse } from "onchfs"
 
 /**
  * A very naïve in-memory cache, just demonstrates how cache can be implemented
@@ -16,6 +16,30 @@ async function main() {
   // Create the resolver, it will be responsible for implementing 2 operations
   // executed during the resolution flow
   const resolve = Onchfs.resolver.create([
+    {
+      blockchain: "eip155:1",
+      rpcs: [
+        "https://eth-mainnet.g.alchemy.com/v2/2U4X50srLUBkIK9Nn5QL8as2eEI4psCO",
+      ],
+    },
+    {
+      blockchain: "eip155:11155111",
+      rpcs: [
+        "https://eth-sepolia.g.alchemy.com/v2/fATxHNjMh0rR9DnHCtZKDpPPxkEY48Qb",
+      ],
+    },
+    {
+      blockchain: "eip155:8453",
+      rpcs: [
+        "https://base-mainnet.g.alchemy.com/v2/cuF74KM9EemvWq7EO6mFEZ5e8_-nMQXf",
+      ],
+    },
+    {
+      blockchain: "eip155:84532",
+      rpcs: [
+        "https://base-sepolia.g.alchemy.com/v2/xTtlsglqRKcFwSkg2bilqp7U2smOt3g9",
+      ],
+    },
     {
       blockchain: "tezos:ghostnet",
       rpcs: ["https://ghostnet.ecadinfra.com"],
