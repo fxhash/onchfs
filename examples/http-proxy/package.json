@@ -1,6 +1,6 @@
 {
   "name": "onchfs-http-proxy-example",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "fxhash",
   "dependencies": {
     "@taquito/taquito": "17.3.0",
