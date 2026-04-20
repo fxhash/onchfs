@@ -26,7 +26,7 @@
     "tslib": "2.6.0",
     "tsup": "8.0.1",
     "typescript": "5.3.3",
-    "@fxhash/tsconfig": "1.0.0"
+    "@fxhash/tsconfig": "0.0.3"
   },
   "exports": {
     ".": {
